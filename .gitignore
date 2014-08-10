@@ -1,5 +1,10 @@
 bin/
+
 obj/
-*.userprefs
-.DS_Store
 packages/
+*.suo
+
+*.userprefs
+
+.DS_Store
+

@@ -4,9 +4,9 @@
 	<ContentPage.Content>
         <StackLayout Orientation="Vertical">
         	<StackLayout Orientation="Horizontal" Padding="10">
-        		<Entry x:Name="playerNameEntry" HorizontalOptions="FillAndExpand" />
-        		<Button x:Name="addPlayerButton" Text="Add Player" HorizontalOptions="EndAndExpand" />
-        	</StackLayout>
+        		<Entry x:Name="playerNameEntry" HorizontalOptions="FillAndExpand" Placeholder="Enter player name" />
+        		<Button x:Name="addPlayerButton" Text="Add Player" HorizontalOptions="End" />
+        	</StackLayout>            
 			<ListView x:Name="playerListView" />
 			<StackLayout Orientation="Horizontal" Padding="10">
         		<Button x:Name="randomizeButton" Text="Randomize Seating" HorizontalOptions="StartAndExpand" />

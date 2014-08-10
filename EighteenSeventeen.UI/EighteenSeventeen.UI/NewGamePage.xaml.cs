@@ -20,8 +20,8 @@ namespace EighteenSeventeen.UI
 			InitializeComponent ();
 
 			this.ViewModel = new NewGameViewModel ();
-			//playerListView.ItemsSource = this.ViewModel.Players;
-
+			playerListView.ItemsSource = this.ViewModel.Players;
+            
 			this.ViewModel.AddPlayer.Subscribe (_ => {
 				this.ViewModel.Players.Add(this.ViewModel.NewPlayerName);
 				this.ViewModel.NewPlayerName = string.Empty;

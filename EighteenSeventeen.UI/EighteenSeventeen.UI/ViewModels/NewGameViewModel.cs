@@ -7,7 +7,6 @@ namespace EighteenSeventeen.UI
 	public class NewGameViewModel : ReactiveObject
 	{
 		public ReactiveList<string> Players { get; private set; }
-
 		public ReactiveCommand<Object> AddPlayer { get; private set; }
 		public ReactiveCommand<Object> StartGame { get; private set; }
 		public ReactiveCommand<Object> RandomizeOrder { get; private set; }
