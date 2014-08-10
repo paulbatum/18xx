@@ -7,8 +7,8 @@
         		<Entry x:Name="playerNameEntry" HorizontalOptions="FillAndExpand" Placeholder="Enter player name" />
         		<Button x:Name="addPlayerButton" Text="Add Player" HorizontalOptions="End" />
         	</StackLayout>            
-			<ListView x:Name="playerListView" />
-			<StackLayout Orientation="Horizontal" Padding="10">
+			<ListView x:Name="playerListView" ItemsSource="{Binding Players}" />
+            <StackLayout Orientation="Horizontal" Padding="10">
         		<Button x:Name="randomizeButton" Text="Randomize Seating" HorizontalOptions="StartAndExpand" />
         		<Button x:Name="startButton" Text="Start Game" HorizontalOptions="EndAndExpand" />
         	</StackLayout>            
