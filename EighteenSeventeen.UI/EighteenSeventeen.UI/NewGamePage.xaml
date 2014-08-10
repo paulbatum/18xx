@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
+	x:Class="EighteenSeventeen.UI.NewGamePage" Title = "New Game">
+	<ContentPage.Content>
+        <StackLayout Orientation="Vertical">
+        	<StackLayout Orientation="Horizontal" Padding="10">
+        		<Entry x:Name="playerNameEntry" HorizontalOptions="FillAndExpand" />
+        		<Button x:Name="addPlayerButton" Text="Add Player" HorizontalOptions="EndAndExpand" />
+        	</StackLayout>
+			<ListView x:Name="playerListView" />
+			<StackLayout Orientation="Horizontal" Padding="10">
+        		<Button x:Name="randomizeButton" Text="Randomize Seating" HorizontalOptions="StartAndExpand" />
+        		<Button x:Name="startButton" Text="Start Game" HorizontalOptions="EndAndExpand" />
+        	</StackLayout>            
+        </StackLayout>
+	</ContentPage.Content>
+</ContentPage>
