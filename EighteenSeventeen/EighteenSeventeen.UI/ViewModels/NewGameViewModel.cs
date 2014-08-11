@@ -24,7 +24,7 @@ namespace EighteenSeventeen.UI
 			var playerCount = this.WhenAnyValue (x => x.Players.Count);
 
 			AddPlayer = ReactiveCommand.Create (this.WhenAnyValue(x => x.Players.Count, x => x.NewPlayerName, 
-				(count, newPlayerName) => count < 7 && !string.IsNullOrEmpty(newPlayerName)));
+				(count, newPlayerName) => count < 7 && !string.IsNullOrWhiteSpace(newPlayerName)));
 			StartGame = ReactiveCommand.Create (playerCount.Select(count => count >= 3));
 			RandomizeOrder = ReactiveCommand.Create (playerCount.Select(count => count >= 2));
 		}

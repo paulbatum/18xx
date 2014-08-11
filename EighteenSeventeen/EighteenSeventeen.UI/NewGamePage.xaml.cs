@@ -22,17 +22,14 @@ namespace EighteenSeventeen.UI
 			this.ViewModel = new NewGameViewModel ();
             this.BindingContext = this.ViewModel;
           
-			this.ViewModel.AddPlayer.Subscribe (_ => {
-				this.ViewModel.Players.Add(this.ViewModel.NewPlayerName);
+            this.WhenAnyObservable(x => x.ViewModel.AddPlayer).Subscribe (_ => {
+				this.ViewModel.Players.Add(this.ViewModel.NewPlayerName.Trim());
 				this.ViewModel.NewPlayerName = string.Empty;
 			});
 
-			this.ViewModel.RandomizeOrder.Subscribe (_ => {
-				var r = new Random();
-				var newOrder = this.ViewModel.Players.OrderBy(x => r.NextDouble()).ToList();
-				this.ViewModel.Players.Clear();
-				this.ViewModel.Players.AddRange(newOrder);
-			});
+            this.WhenAnyObservable(x => x.ViewModel.RandomizeOrder).Subscribe (_ => {
+                RandomizeSeating();
+            });			
 
 			this.Bind (this.ViewModel, vm => vm.NewPlayerName, view => view.playerNameEntry.Text);
 			this.BindCommand (this.ViewModel, vm => vm.AddPlayer, view => view.addPlayerButton);
@@ -40,6 +37,17 @@ namespace EighteenSeventeen.UI
 			this.BindCommand (this.ViewModel, vm => vm.StartGame, view => view.startButton);
 			this.BindCommand (this.ViewModel, vm => vm.RandomizeOrder, view => view.randomizeButton);
 		}
+
+        private void RandomizeSeating()
+        {
+            using (this.ViewModel.Players.SuppressChangeNotifications())
+            {
+                var r = new Random();
+                var newOrder = this.ViewModel.Players.OrderBy(x => r.NextDouble()).ToList();
+                this.ViewModel.Players.Clear();
+                this.ViewModel.Players.AddRange(newOrder);
+            }
+        }
 	}
 }
 
