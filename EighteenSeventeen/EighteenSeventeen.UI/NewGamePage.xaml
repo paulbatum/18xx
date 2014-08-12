@@ -1,17 +1,28 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" 
-	x:Class="EighteenSeventeen.UI.NewGamePage" Title = "New Game">
-	<ContentPage.Content>
+    x:Class="EighteenSeventeen.UI.NewGamePage" Title = "New Game">
+    <ContentPage.Content>
         <StackLayout Orientation="Vertical">
-        	<StackLayout Orientation="Horizontal" Padding="10">
-        		<Entry x:Name="playerNameEntry" HorizontalOptions="FillAndExpand" Placeholder="Enter player name" />
-        		<Button x:Name="addPlayerButton" Text="Add Player" HorizontalOptions="End" />
-        	</StackLayout>            
-			<ListView x:Name="playerListView" ItemsSource="{Binding Players}" />
             <StackLayout Orientation="Horizontal" Padding="10">
-        		<Button x:Name="randomizeButton" Text="Randomize Seating" HorizontalOptions="StartAndExpand" />
-        		<Button x:Name="startButton" Text="Start Game" HorizontalOptions="EndAndExpand" />
-        	</StackLayout>            
+                <Entry x:Name="playerNameEntry" HorizontalOptions="FillAndExpand" Placeholder="Enter player name" />
+                <Button x:Name="addPlayerButton" Text="Add Player" HorizontalOptions="End" />
+            </StackLayout>                        
+            <ListView x:Name="playerListView" ItemsSource="{Binding Players}">
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <ViewCell>
+                            <StackLayout Orientation="Horizontal" Padding="20, 5, 20, 5">
+                                <Label Text="{Binding .}" VerticalOptions="CenterAndExpand" HorizontalOptions="StartAndExpand" />
+                                <Button x:Name="deleteButton" Text="Delete" Clicked="onDeleteClicked"  VerticalOptions="CenterAndExpand" HorizontalOptions="EndAndExpand" />
+                            </StackLayout>
+                        </ViewCell>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+            <StackLayout Orientation="Horizontal" Padding="10">
+                <Button x:Name="randomizeButton" Text="Randomize Seating" HorizontalOptions="StartAndExpand" />
+                <Button x:Name="startButton" Text="Start Game" HorizontalOptions="EndAndExpand" />
+            </StackLayout>            
         </StackLayout>
-	</ContentPage.Content>
+    </ContentPage.Content>
 </ContentPage>

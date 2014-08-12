@@ -8,8 +8,10 @@ namespace EighteenSeventeen.UI
 	{
 		public ReactiveList<string> Players { get; private set; }
 		public ReactiveCommand<Object> AddPlayer { get; private set; }
+        public ReactiveCommand<Object> RemovePlayer { get; private set; }
 		public ReactiveCommand<Object> StartGame { get; private set; }
 		public ReactiveCommand<Object> RandomizeOrder { get; private set; }
+        
 
 		string newPlayerName;
 		public string NewPlayerName {
@@ -21,12 +23,15 @@ namespace EighteenSeventeen.UI
 		{
 			Players = new ReactiveList<string> ();
 
-			var playerCount = this.WhenAnyValue (x => x.Players.Count);
+            var canStart = this.Players.CountChanged.Select(count => count >= 3);
+            StartGame = canStart.ToCommand();
+            RandomizeOrder = canStart.ToCommand();			
+            
+			AddPlayer = this.WhenAnyValue(x => x.Players.Count, x => x.NewPlayerName, 
+				(count, newPlayerName) => count < 7 && !string.IsNullOrWhiteSpace(newPlayerName) && !this.Players.Contains(newPlayerName))
+                .ToCommand();
 
-			AddPlayer = ReactiveCommand.Create (this.WhenAnyValue(x => x.Players.Count, x => x.NewPlayerName, 
-				(count, newPlayerName) => count < 7 && !string.IsNullOrWhiteSpace(newPlayerName)));
-			StartGame = ReactiveCommand.Create (playerCount.Select(count => count >= 3));
-			RandomizeOrder = ReactiveCommand.Create (playerCount.Select(count => count >= 2));
+            RemovePlayer = ReactiveCommand.Create();            
 		}
 	}
 }
