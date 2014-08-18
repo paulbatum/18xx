@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using ReactiveUI;
 using System.Reactive.Linq;
 
@@ -25,13 +26,34 @@ namespace EighteenSeventeen.UI
 
             var canStart = this.Players.CountChanged.Select(count => count >= 3);
             StartGame = canStart.ToCommand();
-            RandomizeOrder = canStart.ToCommand();			
-            
-			AddPlayer = this.WhenAnyValue(x => x.Players.Count, x => x.NewPlayerName, 
-				(count, newPlayerName) => count < 7 && !string.IsNullOrWhiteSpace(newPlayerName) && !this.Players.Contains(newPlayerName))
+            RandomizeOrder = canStart.ToCommand();
+
+            RemovePlayer = ReactiveCommand.Create();
+            AddPlayer = this.WhenAnyValue(x => x.Players.Count, x => x.NewPlayerName,
+                (count, newPlayerName) => count < 7 && !string.IsNullOrWhiteSpace(newPlayerName) && !this.Players.Contains(newPlayerName))
                 .ToCommand();
 
-            RemovePlayer = ReactiveCommand.Create();            
+            RandomizeOrder.Subscribe(_ =>
+            {
+                using (Players.SuppressChangeNotifications())
+                {
+                    var r = new Random();
+                    var newOrder = Players.OrderBy(x => r.NextDouble()).ToList();
+                    Players.Clear();
+                    Players.AddRange(newOrder);
+                }
+            });
+
+            RemovePlayer.Subscribe(player =>
+            {
+                this.Players.Remove((string)player);
+            });
+
+            AddPlayer.Subscribe(_ =>
+            {
+                Players.Add(NewPlayerName.Trim());
+                NewPlayerName = string.Empty;
+            });
 		}
 	}
 }
