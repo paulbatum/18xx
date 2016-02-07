@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 
@@ -27,6 +27,6 @@ namespace EighteenSeventeen.Core
     {
         public int Money { get; }
         public int Loans { get; }
-        public List<Train> Trains { get; }
+        public ImmutableList<Train> Trains { get; }
     }
 }
