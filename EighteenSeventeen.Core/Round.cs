@@ -8,10 +8,16 @@ namespace EighteenSeventeen.Core
 {
     public abstract class Round
     {
-        public int RoundNumber { get; }
         public abstract string Abbreviation { get; }
 
-        public Round(int roundNumber)
+        public override string ToString() => $"{Abbreviation}";
+    }
+
+    public abstract class NumberedRound : Round
+    {
+        public int RoundNumber { get; }        
+
+        public NumberedRound(int roundNumber)
         {
             RoundNumber = roundNumber;
         }
@@ -19,7 +25,7 @@ namespace EighteenSeventeen.Core
         public override string ToString() => $"{Abbreviation}{RoundNumber}";
     }
 
-    public abstract class SubRound : Round
+    public abstract class SubRound : NumberedRound
     {        
         public SubRoundMode Mode { get; }
 
@@ -33,7 +39,12 @@ namespace EighteenSeventeen.Core
         public enum SubRoundMode { A, B }
     }
 
-    public class StockRound : Round
+    public class PrivateAuctionRound : Round
+    {
+        public override string Abbreviation { get; } = "PR";
+    }
+
+    public class StockRound : NumberedRound
     {
         public override string Abbreviation { get; } = "SR";
 
