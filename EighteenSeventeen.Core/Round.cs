@@ -66,6 +66,12 @@ namespace EighteenSeventeen.Core
             var priorityDeal = gameState.Game.GetPlayerAfter(LastToAct);
             return new StockRound(1, priorityDeal);
         }
+
+        public PrivateAuctionRound Bid(GameState gameState, Player player, PrivateCompany target, int bid)
+        {
+            var auction = new Auction<PrivateCompany>(target, player, bid);
+            return new PrivateAuctionRound(Privates, auction, gameState.Game.GetPlayerAfter(player), player);
+        }
     }
 
     public class StockRound : PlayerRound

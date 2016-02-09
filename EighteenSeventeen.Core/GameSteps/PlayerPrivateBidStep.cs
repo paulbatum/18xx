@@ -26,9 +26,8 @@ namespace EighteenSeventeen.Core.GameSteps
             if (currentRound == null)
                 throw new ArgumentException("A private bid step is only valid during the private auction round");
 
-            //currentRound = currentRound.Bid(Player, Target, Bid);
-
-            throw new NotImplementedException();
+            currentRound = currentRound.Bid(currentState, Player, Target, Bid);
+            return new GameState(currentState.Game, currentRound, currentState.PlayerStates, currentState.CompanyStates);            
         }
     }
 }
