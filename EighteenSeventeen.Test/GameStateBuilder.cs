@@ -28,6 +28,8 @@ namespace EighteenSeventeen.Test
 
         public GameStateBuilder EachPlayerPasses()
         {
+            foreach (var p in Game.Players)
+                Game.Steps.Add(new PlayerPassStep());
             return this;
         }
     }

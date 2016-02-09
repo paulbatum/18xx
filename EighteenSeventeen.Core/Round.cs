@@ -8,73 +8,115 @@ namespace EighteenSeventeen.Core
 {
     public abstract class Round
     {
-        public abstract string Abbreviation { get; }
+        public abstract string Description { get; }
+        public abstract Round NextRound(GameState gameState);        
+    }    
 
-        public override string ToString() => $"{Abbreviation}";
+    public abstract class PlayerRound : Round
+    {
+        public Player ActivePlayer { get; }
+        public Player LastToAct { get; }
+        public abstract Round AdvanceToNextPlayer(GameState gameState);
+
+        public PlayerRound(Player activePlayer, Player lastToAct)
+        {
+            ActivePlayer = activePlayer;
+            LastToAct = lastToAct;
+        }        
     }
 
-    public abstract class NumberedRound : Round
+    public abstract class CompanyRound : Round
     {
-        public int RoundNumber { get; }        
+        public Company ActiveCompany { get; }
 
-        public NumberedRound(int roundNumber)
+        public CompanyRound(Company activeCompany)
+        {
+            ActiveCompany = activeCompany;
+        }
+    }
+
+    public enum RoundMode { A, B }
+
+    public class PrivateAuctionRound : PlayerRound
+    {
+        public override string Description { get; } = "PR";
+
+        public PrivateAuctionRound(Player activePlayer, Player lastToAct) : base(activePlayer, lastToAct)
+        {
+            
+        }
+
+        public static PrivateAuctionRound StartOfAuction(Game game)
+        {
+            return new PrivateAuctionRound(game.Players.First(), game.Players.Last());
+        }        
+
+        public override Round NextRound(GameState gameState)
+        {
+            var priorityDeal = gameState.Game.GetPlayerAfter(LastToAct);
+            return new StockRound(1, priorityDeal);
+        }
+
+        public override Round AdvanceToNextPlayer(GameState state)
+        {
+            return new PrivateAuctionRound(state.Game.GetPlayerAfter(this.ActivePlayer), LastToAct);            
+        }
+    }
+
+    public class StockRound : PlayerRound
+    {
+        public int RoundNumber { get; }
+        public override string Description => $"SR{RoundNumber}";        
+
+        public StockRound(int roundNumber, Player priority) : base(priority, null)
         {
             RoundNumber = roundNumber;
         }
 
-        public override string ToString() => $"{Abbreviation}{RoundNumber}";
-    }
-
-    public abstract class SubRound : NumberedRound
-    {        
-        public SubRoundMode Mode { get; }
-
-        public SubRound(int roundNumber, SubRoundMode mode) : base(roundNumber)
-        {            
-            Mode = mode;
-        }
-
-        public override string ToString() => $"{Abbreviation}{RoundNumber}{Mode}";
-
-        public enum SubRoundMode { A, B }
-    }
-
-    public class PrivateAuctionRound : Round
-    {
-        public override string Abbreviation { get; } = "PR";
-    }
-
-    public class StockRound : NumberedRound
-    {
-        public override string Abbreviation { get; } = "SR";
-
-        public StockRound(int roundNumber) : base(roundNumber)
+        public override Round NextRound(GameState gameState)
         {
-
+            throw new NotImplementedException();
         }
-    }
 
-    public class OperatingRound : SubRound
-    {
-        public override string Abbreviation { get; } = "OR";
-
-        public OperatingRound(int roundNumber, SubRoundMode mode) : base(roundNumber, mode)
+        public override Round AdvanceToNextPlayer(GameState gameState)
         {
-
+            throw new NotImplementedException();
         }
     }
 
-    public class MergerRound : SubRound
+    public class OperatingRound : CompanyRound
     {
-        public override string Abbreviation { get; } = "MR";
+        public int RoundNumber { get; }
+        public RoundMode RoundMode { get; }
+        public override string Description => $"OR{RoundNumber}{RoundMode}";
 
-        public MergerRound(int roundNumber, SubRoundMode mode) : base(roundNumber, mode)
+        public OperatingRound(GameState gameState, Company activeCompany, int roundNumber, RoundMode mode) : base(activeCompany)
         {
+            RoundNumber = roundNumber;
+            RoundMode = mode;
+        }
 
+        public override Round NextRound(GameState gameState)
+        {
+            throw new NotImplementedException();
         }
     }
 
+    public class MergerRound : CompanyRound
+    {
+        public int RoundNumber { get; }
+        public RoundMode RoundMode { get; }
+        public override string Description => $"MR{RoundNumber}{RoundMode}";
 
+        public MergerRound(Company activeCompany, int roundNumber, RoundMode mode) : base(activeCompany)
+        {
+            RoundNumber = roundNumber;
+            RoundMode = mode;
+        }
 
-
+        public override Round NextRound(GameState gameState)
+        {
+            throw new NotImplementedException();
+        }
+    }    
 }

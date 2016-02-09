@@ -37,6 +37,7 @@
     <Compile Include="Company.cs" />
     <Compile Include="CompanyAction.cs" />
     <Compile Include="Game.cs" />
+    <Compile Include="GameState.cs" />
     <Compile Include="GameStep.cs" />
     <Compile Include="Mutable.cs" />
     <Compile Include="Player.cs" />

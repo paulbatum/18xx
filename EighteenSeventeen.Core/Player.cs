@@ -20,11 +20,13 @@ namespace EighteenSeventeen.Core
     {
         public Player Player { get; }
         public int Money { get; }
+        public bool HasPriority { get; }
         
-        public PlayerState(Player player, int money)
+        public PlayerState(Player player, int money, bool hasPriority)
         {
             Player = player;
             Money = money;
+            HasPriority = hasPriority;
         }
     }
 }

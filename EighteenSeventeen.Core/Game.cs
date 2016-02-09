@@ -19,9 +19,11 @@ namespace EighteenSeventeen.Core
                 .ToImmutableList();            
         }
 
+        public Player GetPlayerAfter(Player player) => Players[(Players.IndexOf(player) + 1) % Players.Count];        
+
         public GameState GetFinalState()
         {
-            var state = GetInitialState();
+            GameState state = GetInitialState();
 
             foreach (var step in Steps)
             {
@@ -36,33 +38,11 @@ namespace EighteenSeventeen.Core
             var startingCash = 1260 / Players.Count;
 
             var playerStates = Players
-                .Select(x => new PlayerState(x, startingCash))
+                .Select(x => new PlayerState(x, startingCash, hasPriority: Players.IndexOf(x) == 0))
                 .ToImmutableList();
 
-            return new GameState(this, new PrivateAuctionRound(), playerStates, ImmutableList<CompanyState>.Empty);
+            return new GameState(this,PrivateAuctionRound.StartOfAuction(this), playerStates, ImmutableList<CompanyState>.Empty);
         }
         
-    }
-    
-    public class GameSequence
-    {
-        
-    }
-
-    public class GameState
-    {
-        public Game Game { get; }
-        public Round Round { get; }
-        public ImmutableList<PlayerState> Players { get; }
-        public ImmutableList<CompanyState> Companies { get; }        
-
-        public GameState(Game game, Round round, ImmutableList<PlayerState> playerStates, ImmutableList<CompanyState> companyStates)
-        {
-            Game = game;
-            Round = round;
-            Players = playerStates;
-            Companies = companyStates;
-        }
-
     }
 }
