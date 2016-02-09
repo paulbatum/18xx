@@ -1,4 +1,5 @@
 ﻿using EighteenSeventeen.Core;
+using EighteenSeventeen.Core.GameSteps;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,26 +12,21 @@ namespace EighteenSeventeen.Test
     {
         private Game Game { get; }
 
-        public GameStateBuilder(params string[] playerNames)
+        public GameStateBuilder(Game game)
         {
-            Game = new Game(playerNames);
-        }        
-
-        public static GameStateBuilder NewDefaultGame()
-        {            
-            return new GameStateBuilder("Paul", "Stephen", "Jacky");
+            Game = game;
         }
 
-        public Game Build()
-        {
-            return Game;
-        }
-
-        public GameStateBuilder EachPlayerPasses()
+        public void EachPlayerPasses()
         {
             foreach (var p in Game.Players)
-                Game.Steps.Add(new PlayerPassStep());
-            return this;
+                Game.Steps.Add(new PlayerPassStep(p));
+        }
+
+        public void PlayerBidsOnPrivate(string playerName, PrivateCompany privateCompany, int bid)
+        {
+            var step = new PlayerPrivateBidStep(Game.GetPlayer(playerName), privateCompany, bid);
+            Game.Steps.Add(step);
         }
     }
 }

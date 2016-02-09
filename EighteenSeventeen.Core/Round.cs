@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,26 +41,30 @@ namespace EighteenSeventeen.Core
     public class PrivateAuctionRound : PlayerRound
     {
         public override string Description { get; } = "PR";
+        public ImmutableList<PrivateCompany> Privates { get; }
+        public Auction<PrivateCompany> CurrentAuction { get; }
 
-        public PrivateAuctionRound(Player activePlayer, Player lastToAct) : base(activePlayer, lastToAct)
+        public PrivateAuctionRound(ImmutableList<PrivateCompany> privates, Auction<PrivateCompany> auction, Player activePlayer, Player lastToAct) 
+            : base(activePlayer, lastToAct)
         {
-            
+            Privates = privates;
+            CurrentAuction = auction;
         }
 
         public static PrivateAuctionRound StartOfAuction(Game game)
-        {
-            return new PrivateAuctionRound(game.Players.First(), game.Players.Last());
+        {            
+            return new PrivateAuctionRound(PrivateCompanies.All, null, game.Players.First(), game.Players.Last());
         }        
+
+        public override Round AdvanceToNextPlayer(GameState state)
+        {
+            return new PrivateAuctionRound(Privates, CurrentAuction, state.Game.GetPlayerAfter(this.ActivePlayer), LastToAct);
+        }
 
         public override Round NextRound(GameState gameState)
         {
             var priorityDeal = gameState.Game.GetPlayerAfter(LastToAct);
             return new StockRound(1, priorityDeal);
-        }
-
-        public override Round AdvanceToNextPlayer(GameState state)
-        {
-            return new PrivateAuctionRound(state.Game.GetPlayerAfter(this.ActivePlayer), LastToAct);            
         }
     }
 

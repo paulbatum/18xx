@@ -34,13 +34,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Auction.cs" />
     <Compile Include="Company.cs" />
     <Compile Include="CompanyAction.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="GameState.cs" />
     <Compile Include="GameStep.cs" />
+    <Compile Include="GameSteps\PlayerPassStep.cs" />
+    <Compile Include="GameSteps\PlayerPrivateBidStep.cs" />
     <Compile Include="Mutable.cs" />
     <Compile Include="Player.cs" />
+    <Compile Include="PrivateCompany.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Round.cs" />
     <Compile Include="Train.cs" />
