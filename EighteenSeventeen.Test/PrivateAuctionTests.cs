@@ -8,7 +8,7 @@ using Xunit;
 
 namespace EighteenSeventeen.Test
 {    
-    public class GameStateTests
+    public class PrivateAuctionTests
     {
         [Fact]
         public void GameHasExpectedStartingConditions()
@@ -19,7 +19,7 @@ namespace EighteenSeventeen.Test
             var state = game.GetFinalState();
 
             Assert.True(state.PlayerStates.All(p => p.Money == 315), "Each player should start with $315 in a 4 player game");
-            Assert.True(state.PlayerStates.Single(p => p.Player.Name == "Paul").HasPriority);
+            Assert.True(state.GetPlayerState("Paul").HasPriority, "Paul is the first player so he should have priority");
             Assert.Equal("PR", state.Round.Description);
 
         }
@@ -34,6 +34,7 @@ namespace EighteenSeventeen.Test
             var state = game.GetFinalState();
 
             Assert.Equal("SR1", state.Round.Description);
+            Assert.True(state.GetPlayerState("Paul").HasPriority, "Since everyone passed, Paul should still have priority");
         }
     }
 }
