@@ -9,13 +9,13 @@ namespace EighteenSeventeen.Core
     // I'm going to regret this
     public class Auction<T>
     {
-        public T Target { get; }
+        public T Selection { get; }
         public Player HighBidder { get; }
         public int CurrentBid { get; }
 
-        public Auction(T target, Player highBidder, int currentBid)
+        public Auction(T selection, Player highBidder, int currentBid)
         {
-            Target = target;
+            Selection = selection;
             HighBidder = highBidder;
             CurrentBid = currentBid;
         }

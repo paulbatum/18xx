@@ -17,10 +17,10 @@ namespace EighteenSeventeen.Test
             Game = game;
         }
 
-        public void EachPlayerPasses()
+        public void PlayerPasses(params string[] playerName)
         {
-            foreach (var p in Game.Players)
-                Game.Steps.Add(new PlayerPassStep(p));
+            var steps = playerName.Select(p => new PlayerPassStep(Game.GetPlayer(p)));
+            Game.Steps.AddRange(steps);
         }
 
         public void PlayerBidsOnPrivate(string playerName, PrivateCompany privateCompany, int bid)

@@ -33,7 +33,7 @@ namespace EighteenSeventeen.Test
         [Fact]
         public void GameEntersStockRoundIfAllPlayersPassInPrivateAuction()
         {
-            Builder.EachPlayerPasses();            
+            Builder.PlayerPasses("Paul", "Stephen", "Jacky", "Chris");
 
             var state = Game.GetFinalState();
 
@@ -42,7 +42,7 @@ namespace EighteenSeventeen.Test
         }
 
         [Fact]
-        public void PlayersCanBidOnPrivates()
+        public void PlayersCanStartAnAuction()
         {
             Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.CoalMine, 45);            
 
@@ -54,9 +54,43 @@ namespace EighteenSeventeen.Test
 
             var auction = privateRound.CurrentAuction;
             Assert.NotNull(auction);            
-            Assert.Equal(PrivateCompanies.CoalMine, auction.Target);
+            Assert.Equal(PrivateCompanies.CoalMine, auction.Selection);
             Assert.Equal(45, auction.CurrentBid);
             Assert.Equal("Paul", auction.HighBidder.Name);
+        }
+
+        [Fact]
+        public void PlayersCanBidOnPrivates()
+        {
+            Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 65);
+            Builder.PlayerBidsOnPrivate("Stephen", PrivateCompanies.TrainStation, 70);            
+
+            var state = Game.GetFinalState();
+
+            var privateRound = state.Round as PrivateAuctionRound;
+            Assert.NotNull(privateRound);
+            Assert.Equal("Jacky", privateRound.ActivePlayer.Name);
+
+            var auction = privateRound.CurrentAuction;
+            Assert.NotNull(auction);
+            Assert.Equal(PrivateCompanies.TrainStation, auction.Selection);
+            Assert.Equal(70, auction.CurrentBid);
+            Assert.Equal("Stephen", auction.HighBidder.Name);
+        }
+
+        [Fact]
+        public void PrivateBidsMustBeToTheNearestFiveDollars()
+        {
+            Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 63);
+
+            var exception = Assert.Throws<InvalidStepException>(() => Game.GetFinalState());
+            Assert.Equal("Bid of '63' is not legal.", exception.Message);
+        }
+
+        [Fact]
+        public void NextPlayerIsActiveWhenWinningBidIsMade()
+        {
+
         }
     }
 }
