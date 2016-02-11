@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.24720.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EighteenSeventeen.Core", "EighteenSeventeen.Core.csproj", "{3744B2DE-88ED-4EB6-A05B-19A8CE871C7E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EighteenSeventeen.Core", "EighteenSeventeen.Core\EighteenSeventeen.Core.csproj", "{3744B2DE-88ED-4EB6-A05B-19A8CE871C7E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EighteenSeventeen.Test", "..\EighteenSeventeen.Test\EighteenSeventeen.Test.csproj", "{80000CCC-BD38-4BAF-B255-4964C097EBEA}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EighteenSeventeen.Test", "EighteenSeventeen.Test\EighteenSeventeen.Test.csproj", "{80000CCC-BD38-4BAF-B255-4964C097EBEA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
