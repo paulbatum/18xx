@@ -23,5 +23,7 @@ namespace EighteenSeventeen.Core
             CompanyStates = companyStates;
         }
 
+        public PlayerState GetPlayerState(Player player) => PlayerStates.Single(s => s.Player == player);
+
     }
 }

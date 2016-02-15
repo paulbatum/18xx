@@ -1,4 +1,5 @@
-﻿using System;
+﻿using EighteenSeventeen.Core.Rounds;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace EighteenSeventeen.Core
     public class Game
     {
         public IImmutableList<Player> Players { get; }
-        public List<GameStep> Steps { get; } = new List<GameStep>();
+        public List<IGameAction> GameSequence { get; } = new List<IGameAction>();
 
         public Game(params string[] names)
         {            
@@ -19,15 +20,31 @@ namespace EighteenSeventeen.Core
                 .ToImmutableList();            
         }
 
+        
         public Player GetPlayerAfter(Player player) => Players[(Players.IndexOf(player) + 1) % Players.Count];        
 
-        public GameState GetFinalState()
+        public PendingAction GetPendingAction()
+        {
+            var state = GetCurrentState();
+            return null;
+        }
+
+        public GameState GetCurrentState()
         {
             GameState state = GetInitialState();
 
-            foreach (var step in Steps)
+            foreach (var gameAction in GameSequence)
             {
-                state = step.Apply(state);
+                var validator = new GameActionValidator();
+                gameAction.Validate(state, validator);
+
+                if (validator.IsValid)
+                    state = gameAction.Apply(state);
+                else
+                {
+                    // todo, handle this properly
+                    throw new Exception("There were game action validation errors");
+                }
             }
 
             return state;

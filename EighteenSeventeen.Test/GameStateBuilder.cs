@@ -1,5 +1,5 @@
 ﻿using EighteenSeventeen.Core;
-using EighteenSeventeen.Core.GameSteps;
+using EighteenSeventeen.Core.Actions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,14 +19,14 @@ namespace EighteenSeventeen.Test
 
         public void PlayerPasses(params string[] playerName)
         {
-            var steps = playerName.Select(p => new PlayerPassStep(Game.GetPlayer(p)));
-            Game.Steps.AddRange(steps);
+            var steps = playerName.Select(p => new PlayerPassAction(Game.GetPlayer(p)));
+            Game.GameSequence.AddRange(steps);
         }
 
         public void PlayerBidsOnPrivate(string playerName, PrivateCompany privateCompany, int bid)
         {
-            var step = new PlayerPrivateBidStep(Game.GetPlayer(playerName), privateCompany, bid);
-            Game.Steps.Add(step);
+            var step = new PlayerPrivateBidAction(Game.GetPlayer(playerName), privateCompany, bid);
+            Game.GameSequence.Add(step);
         }
     }
 }

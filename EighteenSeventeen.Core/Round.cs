@@ -4,13 +4,18 @@ using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EighteenSeventeen.Core.Actions;
 
 namespace EighteenSeventeen.Core
 {
     public abstract class Round
     {
         public abstract string Description { get; }
-        public abstract Round NextRound(GameState gameState);        
+        public abstract Round NextRound(GameState gameState);
+
+        //public abstract GameActionValidationResult ValidateGameAction(GameState gameState, GameAction gameAction);
+        //public abstract GameState ApplyGameAction(GameState gameState, GameAction gameAction);
+        
     }    
 
     public abstract class PlayerRound : Round
@@ -38,41 +43,7 @@ namespace EighteenSeventeen.Core
 
     public enum RoundMode { A, B }
 
-    public class PrivateAuctionRound : PlayerRound
-    {
-        public override string Description { get; } = "PR";
-        public ImmutableList<PrivateCompany> Privates { get; }
-        public Auction<PrivateCompany> CurrentAuction { get; }
-
-        public PrivateAuctionRound(ImmutableList<PrivateCompany> privates, Auction<PrivateCompany> auction, Player activePlayer, Player lastToAct) 
-            : base(activePlayer, lastToAct)
-        {
-            Privates = privates;
-            CurrentAuction = auction;
-        }
-
-        public static PrivateAuctionRound StartOfAuction(Game game)
-        {            
-            return new PrivateAuctionRound(PrivateCompanies.All, null, game.Players.First(), game.Players.Last());
-        }        
-
-        public override Round AdvanceToNextPlayer(GameState state)
-        {
-            return new PrivateAuctionRound(Privates, CurrentAuction, state.Game.GetPlayerAfter(this.ActivePlayer), LastToAct);
-        }
-
-        public override Round NextRound(GameState gameState)
-        {
-            var priorityDeal = gameState.Game.GetPlayerAfter(LastToAct);
-            return new StockRound(1, priorityDeal);
-        }
-
-        public PrivateAuctionRound Bid(GameState gameState, Player player, PrivateCompany target, int bid)
-        {
-            var auction = new Auction<PrivateCompany>(target, player, bid);
-            return new PrivateAuctionRound(Privates, auction, gameState.Game.GetPlayerAfter(player), player);
-        }
-    }
+    
 
     public class StockRound : PlayerRound
     {

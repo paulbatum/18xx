@@ -1,5 +1,6 @@
 ﻿using EighteenSeventeen.Core;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -27,6 +28,11 @@ namespace EighteenSeventeen.Test
                 throw new ArgumentException($"Player '{name}' not found.");
 
             return player;
+        }
+
+        public static T FirstOrDefaultOfType<T>(this IEnumerable enumerable)
+        {
+            return enumerable.OfType<T>().FirstOrDefault();
         }
     }
 }
