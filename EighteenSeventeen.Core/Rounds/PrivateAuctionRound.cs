@@ -42,20 +42,22 @@ namespace EighteenSeventeen.Core.Rounds
 
         public void ValidateBid(GameState gameState, GameActionValidator validator, Player player, PrivateCompany selection, int bid)
         {
+            if (CurrentAuction != null)
+            {
+                validator.Validate(selection == CurrentAuction.Selection,
+                    $"Bid on '{selection}' is not legal - there is already an auction for '{CurrentAuction.Selection}' in progress.");
+                validator.Validate(bid > CurrentAuction.CurrentBid,
+                    $"Bid of '{bid}' is not legal - the current high bid is '{CurrentAuction.CurrentBid}'.");
+            }
+
             validator.ValidateMultipleOf(5, bid, $"Bid of '{bid}' is not legal - must be a multiple of 5.");
-            validator.Validate(bid < selection.Value, "Illegal bid - overbidding is not permitted");
-            validator.Validate(SeedMoney >= selection.Value - bid, "Illegal bid - not enough seed money");
+            validator.Validate(bid < selection.Value, $"Bid of '{bid}' is not legal - overbidding is not permitted.");
+            validator.Validate(SeedMoney >= selection.Value - bid, "Illegal bid - not enough seed money.");
 
             var playerState = gameState.GetPlayerState(player);
-            validator.Validate(bid <= playerState.Money, $"Illegal bid - cannot bid {bid} with only {playerState.Money} cash available");
+            validator.Validate(bid <= playerState.Money, $"Bid of '{bid}' is not legal - player '{player}' has only {playerState.Money} cash available.");
 
-            if(CurrentAuction != null)
-            {                
-                validator.Validate(selection == CurrentAuction.Selection, 
-                    $"Illegal bid - cannot bid on private '{selection}' because there is already an auction for '{CurrentAuction.Selection}' in progress");
-                validator.Validate(bid > CurrentAuction.CurrentBid, 
-                    $"Illegal bid - {bid} is not greater than the current high bid of {CurrentAuction.CurrentBid}");
-            }
+
         }
 
         public GameState Bid(GameState gameState, Player player, PrivateCompany selection, int bid)

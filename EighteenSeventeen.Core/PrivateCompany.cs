@@ -44,6 +44,11 @@ namespace EighteenSeventeen.Core
             Name = name;
             Value = value;
         }
+
+        public override string ToString()
+        {
+            return Name;
+        }
     }
 
     public class CoalPrivate : PrivateCompany

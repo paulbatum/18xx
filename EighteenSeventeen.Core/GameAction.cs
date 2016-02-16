@@ -57,7 +57,7 @@ namespace EighteenSeventeen.Core
             }
 
             var activePlayer = round.GetActivePlayer(gameState);
-            validator.Validate(ActingPlayer == activePlayer, $"Illegal action - action executed by '{ActingPlayer}' but the active player is '{activePlayer}'");
+            validator.Validate(ActingPlayer == activePlayer, $"Illegal action - action executed by '{ActingPlayer}' but the active player is '{activePlayer}'.");
 
             // Visitor is for astronauts.
             if (round is PrivateAuctionRound)

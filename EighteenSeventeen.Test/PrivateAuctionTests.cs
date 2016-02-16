@@ -105,10 +105,54 @@ namespace EighteenSeventeen.Test
         }
 
         [Fact]
-        public void PrivateBidsMustBeToTheNearestFiveDollars()
+        public void PrivateBidMustBeHigherThanCurrentHighBid()
+        {
+            Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 65);
+            Builder.PlayerBidsOnPrivate("Stephen", PrivateCompanies.TrainStation, 65);
+            Builder.AssertValidationErrorForCurrentState("Bid of '65' is not legal - the current high bid is '65'.");
+        }
+
+        [Fact]
+        public void PrivateBidsMustBeAMultipleOfFive()
         {
             Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 63);
             Builder.AssertValidationErrorForCurrentState("Bid of '63' is not legal - must be a multiple of 5.");            
+        }
+
+        [Fact]
+        public void PrivateBidCannotExceedFaceValue()
+        {
+            Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 85);
+            Builder.AssertValidationErrorForCurrentState("Bid of '85' is not legal - overbidding is not permitted.");
+        }
+
+        [Fact]
+        public void PlayersCannotBidOutOfOrder()
+        {
+            Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 65);
+            Builder.PlayerBidsOnPrivate("Jacky", PrivateCompanies.TrainStation, 70);
+            Builder.AssertValidationErrorForCurrentState("Illegal action - action executed by 'Jacky' but the active player is 'Stephen'.");
+        }
+
+        [Fact]
+        public void PlayersCannotBidOnDifferentPrivateWhileAuctionIsInProgress()
+        {
+            Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 65);
+            Builder.PlayerBidsOnPrivate("Stephen", PrivateCompanies.CoalMine, 45);
+            Builder.AssertValidationErrorForCurrentState("Bid on 'Coal Mine' is not legal - there is already an auction for 'Train Station' in progress.");
+        }
+
+        [Fact]
+        public void PlayersCannotBidMoreThanTheirCurrentCashTotal()
+        {
+            Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 400);
+            Builder.AssertValidationErrorForCurrentState("Bid of '400' is not legal - player 'Paul' has only 315 cash available.");
+        }
+
+        [Fact]
+        public void PrivateBidCannotPutTheSeedMoneyIntoNegative()
+        {
+            throw new NotImplementedException();
         }
 
         [Fact]

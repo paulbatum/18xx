@@ -44,8 +44,7 @@ namespace EighteenSeventeen.Test
             if (validator.IsValid)
                 throw new Exception("Validator reports valid, expected error: " + message);
 
-            Assert.True(validator.Errors.Count == 1);
-            Assert.Equal(message, validator.Errors.First());
+            Assert.Contains(validator.Errors, e => e == message);            
         }
     }
 }
