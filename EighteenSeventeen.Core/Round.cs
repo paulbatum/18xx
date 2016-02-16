@@ -9,8 +9,9 @@ using EighteenSeventeen.Core.Actions;
 namespace EighteenSeventeen.Core
 {
     public abstract class Round
-    {
+    {        
         public abstract string Description { get; }
+        public abstract Player GetActivePlayer(GameState gameState);
         public abstract Round NextRound(GameState gameState);
 
         //public abstract GameActionValidationResult ValidateGameAction(GameState gameState, GameAction gameAction);
@@ -28,7 +29,12 @@ namespace EighteenSeventeen.Core
         {
             ActivePlayer = activePlayer;
             LastToAct = lastToAct;
-        }        
+        }
+
+        public override Player GetActivePlayer(GameState gameState)
+        {
+            return ActivePlayer;
+        }
     }
 
     public abstract class CompanyRound : Round
@@ -38,6 +44,11 @@ namespace EighteenSeventeen.Core
         public CompanyRound(Company activeCompany)
         {
             ActiveCompany = activeCompany;
+        }
+
+        public override Player GetActivePlayer(GameState gameState)
+        {
+            return gameState.GetOwner(ActiveCompany);
         }
     }
 

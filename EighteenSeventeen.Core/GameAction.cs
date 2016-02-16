@@ -12,6 +12,7 @@ namespace EighteenSeventeen.Core
 {
     public interface IGameAction
     {
+        Player ActingPlayer { get; }
         GameState TryApply(GameState gameState, GameActionValidator validator);
     }
 
@@ -23,7 +24,13 @@ namespace EighteenSeventeen.Core
 
     public abstract class GameAction : IGameAction
     {
+        public Player ActingPlayer { get; }
         public abstract bool AppliesToRound(Round round);
+
+        public GameAction(Player actingPlayer)
+        {
+            ActingPlayer = actingPlayer;
+        }
 
         public GameState TryApply(GameState gameState, GameActionValidator validator)
         {
@@ -32,7 +39,10 @@ namespace EighteenSeventeen.Core
             {
                 validator.Validate(false, $"Game action '{GetType().Name}' does not apply to round of type '{gameState.Round.GetType().Name}'.");
                 return null;
-            }            
+            }
+
+            var activePlayer = round.GetActivePlayer(gameState);
+            validator.Validate(ActingPlayer == activePlayer, $"Illegal action - action executed by '{ActingPlayer}' but the active player is '{activePlayer}'");
 
             // Visitor is for astronauts.
             if (round is PrivateAuctionRound)
@@ -41,7 +51,7 @@ namespace EighteenSeventeen.Core
                 return TryApply<OperatingRound>(gameState, validator);
             else
                 throw new Exception($"Current round of type '{round.GetType().Name}' is not recognized. You probably forgot to update the mess of code above.");
-        }       
+        }        
 
         private GameState TryApply<T>(GameState gameState, GameActionValidator validator) where T : Round
         {
@@ -67,6 +77,20 @@ namespace EighteenSeventeen.Core
         public GameActionValidator()
         {
             Errors = new List<string>();
+        }
+
+        public string GetSummary()
+        {
+            if (IsValid)
+                return "There were no validation errors";
+
+            var builder = new StringBuilder();
+            builder.AppendLine($"There were {Errors.Count} validation error(s):");
+
+            foreach (var error in Errors)
+                builder.AppendLine(error);
+
+            return builder.ToString();
         }
 
         public void Validate(bool condition, string errorMessage)

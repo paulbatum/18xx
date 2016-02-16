@@ -41,9 +41,9 @@ namespace EighteenSeventeen.Core
                 if (validator.IsValid)
                     state = newState;
                 else
-                {
+                {                    
                     // todo, handle this properly
-                    throw new Exception("There were game action validation errors");
+                    throw new Exception(validator.GetSummary());
                 }
             }
 

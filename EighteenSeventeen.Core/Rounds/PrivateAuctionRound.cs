@@ -40,16 +40,8 @@ namespace EighteenSeventeen.Core.Rounds
             return new StockRound(1, priorityDeal);
         }
 
-        //public void ValidateBid(GameState gameState, GameActionValidator validator, PlayerPrivateBidAction bidAction)
-        //{
-        //    ValidateBid(gameState, validator, bidAction.Player, bidAction.Target, bidAction.Bid);
-        //}
-
         public void ValidateBid(GameState gameState, GameActionValidator validator, Player player, PrivateCompany selection, int bid)
         {
-            // todo, pull this up
-            validator.Validate(player == ActivePlayer, $"Illegal action - action executed by '{player}' but the active player is '{ActivePlayer}'");
-
             validator.ValidateMultipleOf(5, bid, "Illegal bid - must be multiple of 5");
             validator.Validate(bid < selection.Value, "Illegal bid - overbidding is not permitted");
             validator.Validate(SeedMoney >= selection.Value - bid, "Illegal bid - not enough seed money");
@@ -65,11 +57,6 @@ namespace EighteenSeventeen.Core.Rounds
                     $"Illegal bid - {bid} is not greater than the current high bid of {CurrentAuction.CurrentBid}");
             }
         }
-
-        //public GameState Bid(GameState gameState, PlayerPrivateBidAction bidAction)
-        //{
-        //    return Bid(gameState, bidAction.Player, bidAction.Target, bidAction.Bid);
-        //}
 
         public GameState Bid(GameState gameState, Player player, PrivateCompany selection, int bid)
         { 

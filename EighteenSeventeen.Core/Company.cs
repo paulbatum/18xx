@@ -26,20 +26,21 @@ namespace EighteenSeventeen.Core
 
     public class CompanyState
     {
+        public Company Company { get; }
         public int Money { get; }
         public int Loans { get; }
         public ImmutableList<Train> Trains { get; }
 
-        public CompanyState(int money, int loans, ImmutableList<Train> trains)
+        public CompanyState(Company company, int money, int loans, ImmutableList<Train> trains)
         {
+            Company = company;
             Money = money;
             Loans = loans;
             Trains = trains;
         }
 
-        public CompanyState AddCash(int amount) => new CompanyState(Money + amount, Loans, Trains);
-        public CompanyState SubtractCash(int amount) => new CompanyState(Money - amount, Loans, Trains);
-
-        public CompanyState AddTrain(Train train) => new CompanyState(Money, Loans, Trains.Add(train));
+        public CompanyState AddCash(int amount) => new CompanyState(Company, Money + amount, Loans, Trains);
+        public CompanyState SubtractCash(int amount) => new CompanyState(Company, Money - amount, Loans, Trains);
+        public CompanyState AddTrain(Train train) => new CompanyState(Company, Money, Loans, Trains.Add(train));
     }
 }

@@ -24,6 +24,11 @@ namespace EighteenSeventeen.Core
         }
 
         public PlayerState GetPlayerState(Player player) => PlayerStates.Single(s => s.Player == player);
+        public CompanyState GetCompanyState(Company company) => CompanyStates.Single(s => s.Company == company);
+        public Player GetOwner(Company company)
+        {
+            throw new NotImplementedException();
+        }
 
     }
 }
