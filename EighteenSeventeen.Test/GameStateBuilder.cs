@@ -8,25 +8,39 @@ using System.Threading.Tasks;
 
 namespace EighteenSeventeen.Test
 {
-    public class GameStateBuilder
+    public class GameSequenceBuilder
     {
-        private Game Game { get; }
+        public Game Game { get; }
+        public IGameAction LastAction { get; private set; }
 
-        public GameStateBuilder(Game game)
+        public GameSequenceBuilder(Game game)
         {
             Game = game;
         }
 
-        public void PlayerPasses(params string[] playerName)
+        public IGameAction PlayerPasses(params string[] playerNames)
         {
-            var steps = playerName.Select(p => new PlayerPassAction(Game.GetPlayer(p)));
-            Game.GameSequence.AddRange(steps);
+            foreach (var name in playerNames)
+                LastAction = new PlayerPassAction(LastAction, Game.GetPlayer(name));
+
+            return LastAction;                
         }
 
-        public void PlayerBidsOnPrivate(string playerName, PrivateCompany privateCompany, int bid)
+        public IGameAction PlayerBidsOnPrivate(string playerName, PrivateCompany privateCompany, int bid)
         {
-            var step = new PlayerPrivateBidAction(Game.GetPlayer(playerName), privateCompany, bid);
-            Game.GameSequence.Add(step);
+            LastAction = new PlayerPrivateBidAction(LastAction, Game.GetPlayer(playerName), privateCompany, bid);
+            return LastAction;
+        }
+
+        public GameState GetCurrentState()
+        {
+            var validator = new GameActionValidator();
+            var state = Game.GetLastValidState(LastAction, validator);
+
+            if (validator.IsValid == false)
+                throw new Exception(validator.GetSummary());
+
+            return state;
         }
     }
 }

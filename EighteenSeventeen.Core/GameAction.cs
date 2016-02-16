@@ -12,8 +12,10 @@ namespace EighteenSeventeen.Core
 {
     public interface IGameAction
     {
+        IGameAction Parent { get; }
         Player ActingPlayer { get; }
-        GameState TryApply(GameState gameState, GameActionValidator validator);
+        IEnumerable<IGameAction> Sequence { get; }
+        GameState TryApply(GameState gameState, GameActionValidator validator);        
     }
 
     public interface IGameAction<T> : IGameAction where T : Round
@@ -24,12 +26,25 @@ namespace EighteenSeventeen.Core
 
     public abstract class GameAction : IGameAction
     {
+        public IGameAction Parent { get; }
         public Player ActingPlayer { get; }
         public abstract bool AppliesToRound(Round round);
 
-        public GameAction(Player actingPlayer)
+        public GameAction(IGameAction parent, Player actingPlayer)
         {
+            Parent = parent;
             ActingPlayer = actingPlayer;
+        }
+
+        public IEnumerable<IGameAction> Sequence
+        {
+            get
+            {
+                if (Parent == null)
+                    return new[] { this };
+
+                return Parent.Sequence.Concat(new[] { this });
+            }
         }
 
         public GameState TryApply(GameState gameState, GameActionValidator validator)

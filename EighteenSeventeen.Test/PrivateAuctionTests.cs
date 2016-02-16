@@ -13,18 +13,18 @@ namespace EighteenSeventeen.Test
     public class PrivateAuctionTests
     {
         public Game Game { get; }
-        public GameStateBuilder Builder { get; } 
+        public GameSequenceBuilder Builder { get; } 
 
         public PrivateAuctionTests()
         {
             Game = new Game("Paul", "Stephen", "Jacky", "Chris");
-            Builder = new GameStateBuilder(Game);
+            Builder = new GameSequenceBuilder(Game);
         }
 
         [Fact]
         public void GameHasExpectedStartingConditions()
         {
-            var state = Game.GetCurrentState();
+            var state = Builder.GetCurrentState();
 
             Assert.True(state.PlayerStates.All(p => p.Money == 315), "Each player should start with $315 in a 4 player game");
             Assert.True(state.GetPlayerState("Paul").HasPriority, "Paul is the first player so he should have priority");
@@ -61,7 +61,7 @@ namespace EighteenSeventeen.Test
         {
             Builder.PlayerPasses("Paul", "Stephen", "Jacky", "Chris");
 
-            var state = Game.GetCurrentState();
+            var state = Builder.GetCurrentState();
 
             Assert.Equal("SR1", state.Round.Description);
             Assert.True(state.GetPlayerState("Paul").HasPriority, "Since everyone passed, Paul should still have priority");
@@ -72,7 +72,7 @@ namespace EighteenSeventeen.Test
         {
             Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.CoalMine, 45);            
 
-            var state = Game.GetCurrentState();
+            var state = Builder.GetCurrentState();
 
             var privateRound = state.Round as PrivateAuctionRound;
             Assert.NotNull(privateRound);
@@ -91,7 +91,7 @@ namespace EighteenSeventeen.Test
             Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 65);
             Builder.PlayerBidsOnPrivate("Stephen", PrivateCompanies.TrainStation, 70);            
 
-            var state = Game.GetCurrentState();
+            var state = Builder.GetCurrentState();
 
             var privateRound = state.Round as PrivateAuctionRound;
             Assert.NotNull(privateRound);
@@ -108,9 +108,7 @@ namespace EighteenSeventeen.Test
         public void PrivateBidsMustBeToTheNearestFiveDollars()
         {
             Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 63);
-
-            var exception = Assert.Throws<Exception>(() => Game.GetCurrentState());
-            Assert.Equal("Bid of '63' is not legal.", exception.Message);
+            Builder.AssertValidationErrorForCurrentState("Bid of '63' is not legal - must be a multiple of 5.");            
         }
 
         [Fact]

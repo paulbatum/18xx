@@ -13,7 +13,7 @@ namespace EighteenSeventeen.Core.Actions
         public PrivateCompany Target { get; }        
         public int Bid { get; }
 
-        public PlayerPrivateBidAction(Player actingPlayer, PrivateCompany target, int bid) : base(actingPlayer)
+        public PlayerPrivateBidAction(IGameAction parent, Player actingPlayer, PrivateCompany target, int bid) : base(parent, actingPlayer)
         {            
             Target = target;
             Bid = bid;

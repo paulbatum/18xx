@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Xunit;
 
 namespace EighteenSeventeen.Test
 {
@@ -33,6 +34,18 @@ namespace EighteenSeventeen.Test
         public static T FirstOrDefaultOfType<T>(this IEnumerable enumerable)
         {
             return enumerable.OfType<T>().FirstOrDefault();
+        }
+
+        public static void AssertValidationErrorForCurrentState(this GameSequenceBuilder builder, string message)
+        {
+            var validator = new GameActionValidator();
+            var state = builder.Game.GetLastValidState(builder.LastAction, validator);
+
+            if (validator.IsValid)
+                throw new Exception("Validator reports valid, expected error: " + message);
+
+            Assert.True(validator.Errors.Count == 1);
+            Assert.Equal(message, validator.Errors.First());
         }
     }
 }

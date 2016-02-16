@@ -10,8 +10,7 @@ namespace EighteenSeventeen.Core
 {
     public class Game
     {
-        public IImmutableList<Player> Players { get; }
-        public List<IGameAction> GameSequence { get; } = new List<IGameAction>();
+        public IImmutableList<Player> Players { get; }        
 
         public Game(params string[] names)
         {            
@@ -23,27 +22,22 @@ namespace EighteenSeventeen.Core
         
         public Player GetPlayerAfter(Player player) => Players[(Players.IndexOf(player) + 1) % Players.Count];        
 
-        public PendingAction GetPendingAction()
-        {
-            var state = GetCurrentState();
-            return null;
-        }
-
-        public GameState GetCurrentState()
+        public GameState GetLastValidState(IGameAction finalAction, GameActionValidator validator)
         {
             GameState state = GetInitialState();
 
-            foreach (var gameAction in GameSequence)
-            {
-                var validator = new GameActionValidator();
+            if (finalAction == null)
+                return state;
+
+            foreach (var gameAction in finalAction.Sequence)
+            {                
                 var newState = gameAction.TryApply(state, validator);
 
                 if (validator.IsValid)
                     state = newState;
                 else
-                {                    
-                    // todo, handle this properly
-                    throw new Exception(validator.GetSummary());
+                {
+                    break;
                 }
             }
 
@@ -58,7 +52,7 @@ namespace EighteenSeventeen.Core
                 .Select(x => new PlayerState(x, startingCash, hasPriority: Players.IndexOf(x) == 0))
                 .ToImmutableList();
 
-            return new GameState(this,PrivateAuctionRound.StartOfAuction(this), playerStates, ImmutableList<CompanyState>.Empty);
+            return new GameState(this, PrivateAuctionRound.StartOfAuction(this), playerStates, ImmutableList<CompanyState>.Empty);
         }
         
     }

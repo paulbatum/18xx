@@ -9,7 +9,7 @@ namespace EighteenSeventeen.Core.Actions
 {
     public class PlayerPassAction : GameAction, IGameAction<PrivateAuctionRound>
     {
-        public PlayerPassAction(Player actingPlayer) : base(actingPlayer)
+        public PlayerPassAction(IGameAction parent, Player actingPlayer) : base(parent, actingPlayer)
         {
             
         }

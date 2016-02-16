@@ -42,7 +42,7 @@ namespace EighteenSeventeen.Core.Rounds
 
         public void ValidateBid(GameState gameState, GameActionValidator validator, Player player, PrivateCompany selection, int bid)
         {
-            validator.ValidateMultipleOf(5, bid, "Illegal bid - must be multiple of 5");
+            validator.ValidateMultipleOf(5, bid, $"Bid of '{bid}' is not legal - must be a multiple of 5.");
             validator.Validate(bid < selection.Value, "Illegal bid - overbidding is not permitted");
             validator.Validate(SeedMoney >= selection.Value - bid, "Illegal bid - not enough seed money");
 
