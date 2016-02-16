@@ -93,5 +93,10 @@ namespace EighteenSeventeen.Core.Rounds
 
             return new GameState(gameState.Game, newRound, gameState.PlayerStates, gameState.CompanyStates);
         }
+
+        //public GameState Apply(GameState gameState, IGameAction gameAction)
+        //{
+        //    gameAction.Apply(gameState, this)
+        //}
     }
 }

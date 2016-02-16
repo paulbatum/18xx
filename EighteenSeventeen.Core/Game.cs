@@ -36,10 +36,10 @@ namespace EighteenSeventeen.Core
             foreach (var gameAction in GameSequence)
             {
                 var validator = new GameActionValidator();
-                gameAction.Validate(state, validator);
+                var newState = gameAction.TryApply(state, validator);
 
                 if (validator.IsValid)
-                    state = gameAction.Apply(state);
+                    state = newState;
                 else
                 {
                     // todo, handle this properly
