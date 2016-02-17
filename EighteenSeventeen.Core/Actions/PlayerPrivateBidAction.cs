@@ -35,9 +35,9 @@ namespace EighteenSeventeen.Core.Actions
         }
     }
 
-    public class PlayerPrivateBidChoice
-    {
-        public Player Player { get; }
-        public ImmutableList<PrivateCompany> AvailablePrivates { get; }       
-    }
+    //public class PlayerPrivateBidChoice
+    //{
+    //    public Player Player { get; }
+    //    public ImmutableList<PrivateCompany> AvailablePrivates { get; }       
+    //}
 }

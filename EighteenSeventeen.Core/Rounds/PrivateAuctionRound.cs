@@ -9,29 +9,28 @@ using System.Threading.Tasks;
 namespace EighteenSeventeen.Core.Rounds
 {
     public class PrivateAuctionRound : PlayerRound
-    {
-        // Needs fixing
-        public const int SeedMoney = 200;
-
+    {        
+        public int SeedMoney { get; }
         public override string Description { get; } = "PR";
         public ImmutableList<PrivateCompany> Privates { get; }
         public Auction<PrivateCompany> CurrentAuction { get; }
 
-        public PrivateAuctionRound(ImmutableList<PrivateCompany> privates, Auction<PrivateCompany> auction, Player activePlayer, Player lastToAct)
+        public PrivateAuctionRound(ImmutableList<PrivateCompany> privates, Auction<PrivateCompany> auction, Player activePlayer, Player lastToAct, int seedMoney)
             : base(activePlayer, lastToAct)
         {
             Privates = privates;
             CurrentAuction = auction;
+            SeedMoney = seedMoney;
         }
 
         public static PrivateAuctionRound StartOfAuction(Game game)
         {
-            return new PrivateAuctionRound(PrivateCompanies.All, null, game.Players.First(), game.Players.Last());
+            return new PrivateAuctionRound(PrivateCompanies.All, null, game.Players.First(), game.Players.Last(), 200);
         }
 
         public override Round AdvanceToNextPlayer(GameState state)
         {
-            return new PrivateAuctionRound(Privates, CurrentAuction, state.Game.GetPlayerAfter(this.ActivePlayer), LastToAct);
+            return new PrivateAuctionRound(Privates, CurrentAuction, state.Game.GetPlayerAfter(this.ActivePlayer), LastToAct, SeedMoney);
         }
 
         public override Round NextRound(GameState gameState)
@@ -63,7 +62,7 @@ namespace EighteenSeventeen.Core.Rounds
         public GameState Bid(GameState gameState, Player player, PrivateCompany selection, int bid)
         { 
             var auction = new Auction<PrivateCompany>(selection, player, bid);
-            var round = new PrivateAuctionRound(Privates, auction, gameState.Game.GetPlayerAfter(player), player);
+            var round = new PrivateAuctionRound(Privates, auction, gameState.Game.GetPlayerAfter(player), player, SeedMoney);
             return new GameState(gameState.Game, round, gameState.PlayerStates, gameState.CompanyStates);
         }
 
@@ -83,9 +82,35 @@ namespace EighteenSeventeen.Core.Rounds
             return new GameState(gameState.Game, newRound, gameState.PlayerStates, gameState.CompanyStates);
         }
 
-        //public GameState Apply(GameState gameState, IGameAction gameAction)
-        //{
-        //    gameAction.Apply(gameState, this)
-        //}
+        public override IEnumerable<IChoice> GetChoices(GameState gameState)
+        {
+            var choices = new List<IChoice>();
+            choices.Add(new PassChoice());
+
+            var playerState = gameState.GetPlayerState(ActivePlayer);
+            if (playerState.Money < 5)
+                return choices;
+
+            if (CurrentAuction != null)
+            {
+                choices.Add(GetLegalBid(playerState, CurrentAuction.Selection));
+            }
+            else
+            {                
+                foreach (var company in Privates)
+                    choices.Add(GetLegalBid(playerState, company));
+            }
+
+            return choices;
+        }
+
+        private BidChoice<PrivateCompany> GetLegalBid(PlayerState activePlayerState, PrivateCompany selection)
+        {           
+            var currentBid = this.CurrentAuction?.CurrentBid ?? 0;
+            var min = Math.Max(selection.Value - SeedMoney, currentBid + 5);
+            var max = Math.Min(selection.Value, activePlayerState.GetMoneyRoundedDownToMultipleOf(5));
+
+            return new BidChoice<PrivateCompany>(selection, min, max);
+        }
     }
 }

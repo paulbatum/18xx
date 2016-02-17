@@ -33,5 +33,10 @@ namespace EighteenSeventeen.Core
             Money = money;
             HasPriority = hasPriority;
         }
+
+        public int GetMoneyRoundedDownToMultipleOf(int multiple)
+        {
+            return Money - (Money % multiple);
+        }
     }
 }

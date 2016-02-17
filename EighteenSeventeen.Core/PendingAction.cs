@@ -10,6 +10,12 @@ namespace EighteenSeventeen.Core
     public class PendingAction
     {
         public Player ActivePlayer { get; }
-        //public ImmutableList<GameActionOld> Choices { get; }
+        public ImmutableList<IChoice> Choices { get; }
+
+        public PendingAction(Player player, ImmutableList<IChoice> choices)
+        {
+            ActivePlayer = player;
+            Choices = choices;
+        }
     }
 }

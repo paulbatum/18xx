@@ -13,10 +13,10 @@ namespace EighteenSeventeen.Core
         public abstract string Description { get; }
         public abstract Player GetActivePlayer(GameState gameState);
         public abstract Round NextRound(GameState gameState);
-
+        public abstract IEnumerable<IChoice> GetChoices(GameState gameState);
         //public abstract GameActionValidationResult ValidateGameAction(GameState gameState, GameAction gameAction);
         //public abstract GameState ApplyGameAction(GameState gameState, GameAction gameAction);
-        
+
     }    
 
     public abstract class PlayerRound : Round
@@ -75,6 +75,11 @@ namespace EighteenSeventeen.Core
         {
             throw new NotImplementedException();
         }
+
+        public override IEnumerable<IChoice> GetChoices(GameState gameState)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class OperatingRound : CompanyRound
@@ -93,6 +98,11 @@ namespace EighteenSeventeen.Core
         {
             throw new NotImplementedException();
         }
+
+        public override IEnumerable<IChoice> GetChoices(GameState gameState)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public class MergerRound : CompanyRound
@@ -108,6 +118,11 @@ namespace EighteenSeventeen.Core
         }
 
         public override Round NextRound(GameState gameState)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override IEnumerable<IChoice> GetChoices(GameState gameState)
         {
             throw new NotImplementedException();
         }

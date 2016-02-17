@@ -32,17 +32,18 @@ namespace EighteenSeventeen.Test
 
         }
 
-        //[Fact]
-        //public void PlayerWithPriorityCanBidOnPrivateOrPass()
-        //{
-        //    var pendingAction = Game.GetPendingAction();
+        [Fact]
+        public void PlayerWithPriorityCanBidOnPrivateOrPass()
+        {
+            var state = Builder.GetCurrentState();
+            var pendingAction = Game.GetPendingAction(state);
 
-        //    var passChoice = pendingAction.Choices.OfType<PlayerPassAction>().FirstOrDefault();
-        //    var bidChoice = pendingAction.Choices.OfType<PlayerPrivateBidAction>().FirstOrDefault();
+            var passChoice = pendingAction.Choices.OfType<PassChoice>().SingleOrDefault();
+            var bidChoices = pendingAction.Choices.OfType<BidChoice<PrivateCompany>>().ToList();
 
-        //    Assert.NotNull(passChoice);
-        //    Assert.NotNull(bidChoice);
-        //}
+            Assert.NotNull(passChoice);
+            Assert.Equal(PrivateCompanies.All.Count, bidChoices.Count);
+        }
 
         //[Fact]
         //public void PlayerWithPriorityCanSelectWhichPrivateToBidOn()

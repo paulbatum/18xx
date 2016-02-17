@@ -35,6 +35,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Auction.cs" />
+    <Compile Include="Choice.cs" />
     <Compile Include="Company.cs" />
     <Compile Include="CompanyAction.cs" />
     <Compile Include="Game.cs" />
@@ -42,7 +43,6 @@
     <Compile Include="GameAction.cs" />
     <Compile Include="Actions\PlayerPassAction.cs" />
     <Compile Include="Actions\PlayerPrivateBidAction.cs" />
-    <Compile Include="Mutable.cs" />
     <Compile Include="PendingAction.cs" />
     <Compile Include="Player.cs" />
     <Compile Include="PrivateCompany.cs" />

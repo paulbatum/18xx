@@ -18,7 +18,6 @@ namespace EighteenSeventeen.Core
                 .Select(x => new Player(x))
                 .ToImmutableList();            
         }
-
         
         public Player GetPlayerAfter(Player player) => Players[(Players.IndexOf(player) + 1) % Players.Count];        
 
@@ -42,6 +41,14 @@ namespace EighteenSeventeen.Core
             }
 
             return state;
+        }
+
+        public PendingAction GetPendingAction(GameState gameState)
+        {
+            var choices = gameState.Round.GetChoices(gameState);
+            var activePlayer = gameState.Round.GetActivePlayer(gameState);
+
+            return new PendingAction(activePlayer, choices.ToImmutableList());
         }
 
         private GameState GetInitialState()
