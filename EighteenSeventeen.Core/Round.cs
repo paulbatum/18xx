@@ -11,19 +11,14 @@ namespace EighteenSeventeen.Core
     public abstract class Round
     {        
         public abstract string Description { get; }
-        public abstract Player GetActivePlayer(GameState gameState);
-        public abstract Round NextRound(GameState gameState);
+        public abstract Player GetActivePlayer(GameState gameState);        
         public abstract IEnumerable<IChoice> GetChoices(GameState gameState);
-        //public abstract GameActionValidationResult ValidateGameAction(GameState gameState, GameAction gameAction);
-        //public abstract GameState ApplyGameAction(GameState gameState, GameAction gameAction);
-
     }    
 
     public abstract class PlayerRound : Round
     {
         public Player ActivePlayer { get; }
         public Player LastToAct { get; }
-        public abstract Round AdvanceToNextPlayer(GameState gameState);
 
         public PlayerRound(Player activePlayer, Player lastToAct)
         {
@@ -66,16 +61,6 @@ namespace EighteenSeventeen.Core
             RoundNumber = roundNumber;
         }
 
-        public override Round NextRound(GameState gameState)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override Round AdvanceToNextPlayer(GameState gameState)
-        {
-            throw new NotImplementedException();
-        }
-
         public override IEnumerable<IChoice> GetChoices(GameState gameState)
         {
             throw new NotImplementedException();
@@ -94,11 +79,6 @@ namespace EighteenSeventeen.Core
             RoundMode = mode;
         }
 
-        public override Round NextRound(GameState gameState)
-        {
-            throw new NotImplementedException();
-        }
-
         public override IEnumerable<IChoice> GetChoices(GameState gameState)
         {
             throw new NotImplementedException();
@@ -115,11 +95,6 @@ namespace EighteenSeventeen.Core
         {
             RoundNumber = roundNumber;
             RoundMode = mode;
-        }
-
-        public override Round NextRound(GameState gameState)
-        {
-            throw new NotImplementedException();
         }
 
         public override IEnumerable<IChoice> GetChoices(GameState gameState)

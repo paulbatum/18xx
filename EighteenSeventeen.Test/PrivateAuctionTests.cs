@@ -13,12 +13,22 @@ namespace EighteenSeventeen.Test
     public class PrivateAuctionTests
     {
         public Game Game { get; }
-        public GameSequenceBuilder Builder { get; } 
+        public GameSequenceBuilder Builder { get; }
+
+        public Player Player1 { get; }
+        public Player Player2 { get; }
+        public Player Player3 { get; }
+        public Player Player4 { get; }
 
         public PrivateAuctionTests()
         {
             Game = new Game("Paul", "Stephen", "Jacky", "Chris");
             Builder = new GameSequenceBuilder(Game);
+
+            Player1 = Game.GetPlayer("Paul");
+            Player2 = Game.GetPlayer("Stephen");
+            Player3 = Game.GetPlayer("Jacky");
+            Player4 = Game.GetPlayer("Chris");
         }
 
         [Fact]
@@ -27,13 +37,12 @@ namespace EighteenSeventeen.Test
             var state = Builder.GetCurrentState();
 
             Assert.True(state.PlayerStates.All(p => p.Money == 315), "Each player should start with $315 in a 4 player game");
-            Assert.True(state.GetPlayerState("Paul").HasPriority, "Paul is the first player so he should have priority");
-            Assert.Equal("PR", state.Round.Description);
-
+            GameAssert.CurrentRoundIs(state, "PR");            
+            GameAssert.PlayerHasPriority(state, Player1);
         }
 
         [Fact]
-        public void PlayerWithPriorityCanBidOnPrivateOrPass()
+        public void StartingPlayerChoosesToBidOnPrivateOrPass()
         {
             var state = Builder.GetCurrentState();
             var pendingAction = Game.GetPendingAction(state);
@@ -45,121 +54,184 @@ namespace EighteenSeventeen.Test
             Assert.Equal(PrivateCompanies.All.Count, bidChoices.Count);
         }
 
-        //[Fact]
-        //public void PlayerWithPriorityCanSelectWhichPrivateToBidOn()
-        //{
-        //    var pendingAction = Game.GetPendingAction();
-
-        //    var bidChoice = pendingAction.Choices.FirstOrDefaultOfType<PlayerPrivateBidAction>();
-        //    Assert.NotNull(bidChoice);
-
-
-        //}
-
-
-        [Fact]
-        public void GameEntersStockRoundIfAllPlayersPassInPrivateAuction()
-        {
-            Builder.PlayerPasses("Paul", "Stephen", "Jacky", "Chris");
-
-            var state = Builder.GetCurrentState();
-
-            Assert.Equal("SR1", state.Round.Description);
-            Assert.True(state.GetPlayerState("Paul").HasPriority, "Since everyone passed, Paul should still have priority");
-        }
-
         [Fact]
         public void PlayersCanStartAnAuction()
         {
-            Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.CoalMine, 45);            
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.CoalMine, 45);            
 
             var state = Builder.GetCurrentState();
 
             var privateRound = state.Round as PrivateAuctionRound;
             Assert.NotNull(privateRound);
-            Assert.Equal("Stephen", privateRound.ActivePlayer.Name);
+            Assert.Equal(Player2, privateRound.ActivePlayer);
 
             var auction = privateRound.CurrentAuction;
             Assert.NotNull(auction);            
             Assert.Equal(PrivateCompanies.CoalMine, auction.Selection);
             Assert.Equal(45, auction.CurrentBid);
-            Assert.Equal("Paul", auction.HighBidder.Name);
+            Assert.Equal(Player1, auction.HighBidder);
         }
 
         [Fact]
-        public void PlayersCanBidOnPrivates()
+        public void WhenAuctionStartsNextPlayerChoosesToBidOrPass()
         {
-            Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 65);
-            Builder.PlayerBidsOnPrivate("Stephen", PrivateCompanies.TrainStation, 70);            
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.CoalMine, 45);
+            
+            var state = Builder.GetCurrentState();
+            var pendingAction = Game.GetPendingAction(state);
+
+            var passChoice = pendingAction.Choices.OfType<PassChoice>().SingleOrDefault();
+            var bidChoice = pendingAction.Choices.OfType<BidChoice<PrivateCompany>>().SingleOrDefault();
+
+            Assert.NotNull(passChoice);
+            Assert.NotNull(bidChoice);
+            Assert.Equal(PrivateCompanies.CoalMine, bidChoice.Target);
+            Assert.Equal(50, bidChoice.Minimum);
+            Assert.Equal(60, bidChoice.Maximum);
+        }
+
+        [Fact]
+        public void PlayersCanPassInsteadOfStartingAnAuction()
+        {
+            Builder.PlayerPasses(Player1);
 
             var state = Builder.GetCurrentState();
 
             var privateRound = state.Round as PrivateAuctionRound;
             Assert.NotNull(privateRound);
-            Assert.Equal("Jacky", privateRound.ActivePlayer.Name);
+            Assert.Null(privateRound.CurrentAuction);
+            Assert.Equal(Player2, privateRound.ActivePlayer);
+        }
+
+        [Fact]
+        public void DuringAnAuctionPlayersCanBidOnPrivates()
+        {
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.TrainStation, 65);
+            Builder.PlayerBidsOnPrivate(Player2, PrivateCompanies.TrainStation, 70);            
+
+            var state = Builder.GetCurrentState();
+
+            var privateRound = state.Round as PrivateAuctionRound;
+            Assert.NotNull(privateRound);
+            Assert.Equal(Player3, privateRound.ActivePlayer);
 
             var auction = privateRound.CurrentAuction;
             Assert.NotNull(auction);
             Assert.Equal(PrivateCompanies.TrainStation, auction.Selection);
             Assert.Equal(70, auction.CurrentBid);
-            Assert.Equal("Stephen", auction.HighBidder.Name);
+            Assert.Equal(Player2, auction.HighBidder);
+        }
+
+        [Fact]
+        public void AuctionCompletesWhenAllOtherPlayersPassOnCurrentBid()
+        {
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.MajorCoalMine, 65);
+            Builder.PlayerBidsOnPrivate(Player2, PrivateCompanies.MajorCoalMine, 70);
+            Builder.PlayerPasses(Player3, Player4, Player1);
+
+            var state = Builder.GetCurrentState();
+
+            var privateRound = state.Round as PrivateAuctionRound;
+            Assert.NotNull(privateRound);
+            Assert.Null(privateRound.CurrentAuction);
+            Assert.Equal(200 - 20, privateRound.SeedMoney);
+            Assert.Equal(Player2, privateRound.ActivePlayer);
+            Assert.DoesNotContain(PrivateCompanies.MajorCoalMine, privateRound.Privates);
+
+            var player1State = state.GetPlayerState(Player1);
+            Assert.Equal(315, player1State.Money);
+
+            var player2State = state.GetPlayerState(Player2);
+            Assert.Equal(315 - 70, player2State.Money);
+            Assert.Contains(PrivateCompanies.MajorCoalMine, player2State.PrivateCompanies);
+        }
+
+
+        [Fact]
+        public void AuctionCompletesWhenMaximumBidIsMade()
+        {
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.PittsburghSteelMill, 35);
+            Builder.PlayerBidsOnPrivate(Player2, PrivateCompanies.PittsburghSteelMill, 40);
+
+            var state = Builder.GetCurrentState();
+
+            var privateRound = state.Round as PrivateAuctionRound;
+            Assert.NotNull(privateRound);
+            Assert.Null(privateRound.CurrentAuction);
+            Assert.Equal(200, privateRound.SeedMoney);
+            Assert.Equal(Player2, privateRound.ActivePlayer);
+
+            var player2State = state.GetPlayerState(Player2);
+            Assert.Equal(315 - 40, player2State.Money);
+            Assert.Contains(PrivateCompanies.PittsburghSteelMill, player2State.PrivateCompanies);
         }
 
         [Fact]
         public void PrivateBidMustBeHigherThanCurrentHighBid()
         {
-            Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 65);
-            Builder.PlayerBidsOnPrivate("Stephen", PrivateCompanies.TrainStation, 65);
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.TrainStation, 65);
+            Builder.PlayerBidsOnPrivate(Player2, PrivateCompanies.TrainStation, 65);
             Builder.AssertValidationErrorForCurrentState("Bid of '65' is not legal - the current high bid is '65'.");
         }
 
         [Fact]
         public void PrivateBidsMustBeAMultipleOfFive()
         {
-            Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 63);
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.TrainStation, 63);
             Builder.AssertValidationErrorForCurrentState("Bid of '63' is not legal - must be a multiple of 5.");            
         }
 
         [Fact]
         public void PrivateBidCannotExceedFaceValue()
         {
-            Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 85);
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.TrainStation, 85);
             Builder.AssertValidationErrorForCurrentState("Bid of '85' is not legal - overbidding is not permitted.");
         }
 
         [Fact]
         public void PlayersCannotBidOutOfOrder()
         {
-            Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 65);
-            Builder.PlayerBidsOnPrivate("Jacky", PrivateCompanies.TrainStation, 70);
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.TrainStation, 65);
+            Builder.PlayerBidsOnPrivate(Player3, PrivateCompanies.TrainStation, 70);
             Builder.AssertValidationErrorForCurrentState("Illegal action - action executed by 'Jacky' but the active player is 'Stephen'.");
         }
 
         [Fact]
         public void PlayersCannotBidOnDifferentPrivateWhileAuctionIsInProgress()
         {
-            Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 65);
-            Builder.PlayerBidsOnPrivate("Stephen", PrivateCompanies.CoalMine, 45);
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.TrainStation, 65);
+            Builder.PlayerBidsOnPrivate(Player2, PrivateCompanies.CoalMine, 45);
             Builder.AssertValidationErrorForCurrentState("Bid on 'Coal Mine' is not legal - there is already an auction for 'Train Station' in progress.");
         }
 
         [Fact]
         public void PlayersCannotBidMoreThanTheirCurrentCashTotal()
         {
-            Builder.PlayerBidsOnPrivate("Paul", PrivateCompanies.TrainStation, 400);
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.TrainStation, 400);
             Builder.AssertValidationErrorForCurrentState("Bid of '400' is not legal - player 'Paul' has only 315 cash available.");
         }
 
-        [Fact]
-        public void PrivateBidCannotPutTheSeedMoneyIntoNegative()
-        {
-            throw new NotImplementedException();
-        }
+        //[Fact]
+        //public void PrivateBidCannotPutTheSeedMoneyIntoNegative()
+        //{
+        //    throw new NotImplementedException();
+        //}
+
+        //[Fact]
+        //public void NextPlayerIsActiveWhenWinningBidIsMade()
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         [Fact]
-        public void NextPlayerIsActiveWhenWinningBidIsMade()
+        public void GameEntersStockRoundIfAllPlayersPassInPrivateAuction()
         {
-            throw new NotImplementedException();
+            Builder.PlayerPasses(Player1, Player2, Player3, Player4);
+
+            var state = Builder.GetCurrentState();
+
+            GameAssert.CurrentRoundIs(state, "SR1");
+            GameAssert.PlayerHasPriority(state, Player1);
         }
     }
 }

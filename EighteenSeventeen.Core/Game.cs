@@ -56,10 +56,10 @@ namespace EighteenSeventeen.Core
             var startingCash = 1260 / Players.Count;
 
             var playerStates = Players
-                .Select(x => new PlayerState(x, startingCash, hasPriority: Players.IndexOf(x) == 0))
+                .Select(x => new PlayerState(x, startingCash))
                 .ToImmutableList();
 
-            return new GameState(this, PrivateAuctionRound.StartOfAuction(this), playerStates, ImmutableList<CompanyState>.Empty);
+            return new GameState(this, PrivateAuctionRound.StartOfAuction(this), Players.First(), playerStates, ImmutableList<CompanyState>.Empty);
         }
         
     }

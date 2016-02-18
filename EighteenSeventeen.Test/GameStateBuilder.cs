@@ -18,17 +18,17 @@ namespace EighteenSeventeen.Test
             Game = game;
         }
 
-        public IGameAction PlayerPasses(params string[] playerNames)
+        public IGameAction PlayerPasses(params Player[] players)
         {
-            foreach (var name in playerNames)
-                LastAction = new PlayerPassAction(LastAction, Game.GetPlayer(name));
+            foreach (var player in players)
+                LastAction = new PlayerPassAction(LastAction, player);
 
             return LastAction;                
         }
 
-        public IGameAction PlayerBidsOnPrivate(string playerName, PrivateCompany privateCompany, int bid)
+        public IGameAction PlayerBidsOnPrivate(Player player, PrivateCompany privateCompany, int bid)
         {
-            LastAction = new PlayerPrivateBidAction(LastAction, Game.GetPlayer(playerName), privateCompany, bid);
+            LastAction = new PlayerPrivateBidAction(LastAction, player, privateCompany, bid);
             return LastAction;
         }
 

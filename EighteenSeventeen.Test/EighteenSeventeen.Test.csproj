@@ -61,6 +61,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="GameAssert.cs" />
     <Compile Include="GameStateBuilder.cs" />
     <Compile Include="PrivateAuctionTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
