@@ -167,7 +167,9 @@ namespace EighteenSeventeen.Test
             var privateRound = state.Round as PrivateAuctionRound;
             Assert.NotNull(privateRound);
             Assert.Null(privateRound.CurrentAuction);
-            Assert.Equal(200 - 20, privateRound.SeedMoney);
+
+            var bidFaceDifferential = PrivateCompanies.MajorCoalMine.Value - 70;
+            Assert.Equal(200 - bidFaceDifferential, privateRound.SeedMoney);
             Assert.Equal(Player2, privateRound.ActivePlayer);
             Assert.DoesNotContain(PrivateCompanies.MajorCoalMine, privateRound.Privates);
 
@@ -197,6 +199,25 @@ namespace EighteenSeventeen.Test
             var player2State = state.GetPlayerState(Player2);
             Assert.Equal(315 - 40, player2State.Money);
             Assert.Contains(PrivateCompanies.PittsburghSteelMill, player2State.PrivateCompanies);
+        }
+
+        [Fact]
+        public void NextPlayerIsActiveWhenWinningBidIsMade()
+        {
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.MajorCoalMine, 60);
+            Builder.PlayerPasses(Player2);
+            Builder.PlayerBidsOnPrivate(Player3, PrivateCompanies.MajorCoalMine, 65);
+            Builder.PlayerBidsOnPrivate(Player4, PrivateCompanies.MajorCoalMine, 70);
+
+            Builder.PlayerPasses(Player1);
+            Builder.PlayerPasses(Player3);
+
+            var state = Builder.GetCurrentState();
+
+            var privateRound = state.Round as PrivateAuctionRound;
+            Assert.NotNull(privateRound);
+            Assert.Null(privateRound.CurrentAuction);
+            Assert.Equal(Player2, privateRound.ActivePlayer);            
         }
 
         [Fact]
@@ -242,19 +263,26 @@ namespace EighteenSeventeen.Test
         {
             Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.TrainStation, 400);
             Builder.AssertValidationErrorForCurrentState("Bid of '400' is not legal - player 'Paul' has only 315 cash available.");
-        }       
+        }
 
-        //[Fact]
-        //public void PrivateBidCannotPutTheSeedMoneyIntoNegative()
-        //{
-        //    throw new NotImplementedException();
-        //}
+        [Fact]
+        public void PrivateBidCannotPutTheSeedMoneyIntoNegative()
+        {            
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.MajorMailContract, 5);
+            Builder.PlayerPasses(Player2, Player3, Player4);
 
-        //[Fact]
-        //public void NextPlayerIsActiveWhenWinningBidIsMade()
-        //{
-        //    throw new NotImplementedException();
-        //}
+            Builder.PlayerBidsOnPrivate(Player2, PrivateCompanies.MajorCoalMine, 5);
+            Builder.PlayerPasses(Player3, Player4, Player1);            
+
+            var state = Builder.GetCurrentState();
+            var privateRound = state.Round as PrivateAuctionRound;
+            Assert.NotNull(privateRound);
+            
+            Assert.Equal(0, privateRound.SeedMoney);
+
+            Builder.PlayerBidsOnPrivate(Player2, PrivateCompanies.MinorCoalMine, 25);
+            Builder.AssertValidationErrorForCurrentState("Bid of '25' is not legal - not enough seed money.");
+        }
 
         [Fact]
         public void GameEntersStockRoundIfAllPlayersPassInPrivateAuction()
