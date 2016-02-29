@@ -294,5 +294,66 @@ namespace EighteenSeventeen.Test
             GameAssert.CurrentRoundIs(state, "SR1");
             GameAssert.PlayerHasPriority(state, Player1);
         }
+
+        [Fact]
+        public void RealisticPrivateAuctionRoundCanBeExecuted()
+        {
+            // Paul opens with max bid for pittsburgh
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.PittsburghSteelMill, 40);
+
+            // Stephen makes his default mail contract bid of 'fair market value'
+            Builder.PlayerBidsOnPrivate(Player2, PrivateCompanies.MailContract, 70);
+            Builder.PlayerPasses(Player3, Player4, Player1);
+
+            // Jacky does the same for the minor mail
+            Builder.PlayerBidsOnPrivate(Player3, PrivateCompanies.MinorMailContract, 45);
+            Builder.PlayerPasses(Player4, Player1, Player2);
+
+            // Christopher decides to squeeze paul a little and succeeds
+            Builder.PlayerBidsOnPrivate(Player4, PrivateCompanies.CoalMine, 45);
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.CoalMine, 50);
+            Builder.PlayerPasses(Player2, Player3, Player4);
+
+            // Paul tries to grab some more coal but Christopher wont allow it
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.MinorCoalMine, 20);
+            Builder.PlayerPasses(Player2, Player3);
+            Builder.PlayerBidsOnPrivate(Player4, PrivateCompanies.MinorCoalMine, 25);
+            Builder.PlayerPasses(Player1);
+
+            // Stephen suckers Chris into buying the major mail as per usual
+            Builder.PlayerBidsOnPrivate(Player2, PrivateCompanies.MajorMailContract, 90);
+            Builder.PlayerPasses(Player3);
+            Builder.PlayerBidsOnPrivate(Player4, PrivateCompanies.MajorMailContract, 95);
+            Builder.PlayerPasses(Player1, Player2);
+
+            // Jacky makes a play for charleston but Stephen would rather take the coal and stick it in baltimore
+            Builder.PlayerBidsOnPrivate(Player3, PrivateCompanies.MajorCoalMine, 65);
+            Builder.PlayerPasses(Player4, Player1);
+            Builder.PlayerBidsOnPrivate(Player2, PrivateCompanies.MajorCoalMine, 70);
+            Builder.PlayerPasses(Player3);
+
+            // Chris wants a bit more bidding power
+            Builder.PlayerBidsOnPrivate(Player4, PrivateCompanies.MountainEngineers, 30);
+            Builder.PlayerPasses(Player1, Player2, Player3);
+
+            // Paul loves the train station but Jacky feels like he is missing out and jumps in
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.TrainStation, 65);
+            Builder.PlayerPasses(Player2);
+            Builder.PlayerBidsOnPrivate(Player3, PrivateCompanies.TrainStation, 70);
+            Builder.PlayerPasses(Player4, Player1);
+
+            // Stephen senses an opportunity for a good deal, and the rest of the table squirms
+            Builder.PlayerBidsOnPrivate(Player2, PrivateCompanies.UnionBridge, 55);
+            Builder.PlayerPasses(Player3, Player4, Player1);
+
+            // Jacky makes a grab for a bit more bidding power
+            Builder.PlayerBidsOnPrivate(Player3, PrivateCompanies.OhioBridge, 25);
+            Builder.PlayerPasses(Player4, Player1, Player2);
+
+            // All privates are gone. We enter the stock round
+            var state = Builder.GetCurrentState();
+            GameAssert.CurrentRoundIs(state, "SR1");
+            GameAssert.ActivePlayerIs(state, Player4);  
+        }
     }
 }

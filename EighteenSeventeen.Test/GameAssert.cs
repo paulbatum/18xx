@@ -15,6 +15,11 @@ namespace EighteenSeventeen.Test
             Assert.Equal(roundDescription, gameState.Round.Description);
         }
 
+        public static void ActivePlayerIs(GameState gameState, Player player)
+        {
+            Assert.Equal(player, gameState.Round.GetActivePlayer(gameState));
+        }
+
         public static void PlayerHasPriority(GameState gameState, Player player)
         {
             Assert.Equal(player, gameState.PlayerWithPriority);
