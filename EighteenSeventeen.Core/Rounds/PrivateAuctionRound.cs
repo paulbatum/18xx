@@ -50,15 +50,15 @@ namespace EighteenSeventeen.Core.Rounds
         {
             if (CurrentAuction != null)
             {
-                var nextPlayer = CurrentAuction.GetPlayerAfter(biddingPlayer);
+                var auction = new PrivateCompanyAuction(selection, biddingPlayer, bid, CurrentAuction.Participants);
+                
                 if (bid == selection.Value)
                 {
-                    // We need to use the same logic as for when the last player passes
-                    throw new NotImplementedException();
+                    return CompleteAuction(gameState, auction);
                 }
                 else
                 {
-                    var auction = new PrivateCompanyAuction(selection, biddingPlayer, bid, CurrentAuction.Participants);
+                    var nextPlayer = CurrentAuction.GetPlayerAfter(biddingPlayer);
                     var round = new PrivateAuctionRound(Privates, auction, nextPlayer, LastToAct, SeedMoney);
                     return new GameState(gameState.Game, round, gameState.PlayerWithPriority, gameState.PlayerStates, gameState.CompanyStates);
                 }
@@ -72,43 +72,48 @@ namespace EighteenSeventeen.Core.Rounds
         }
 
         public GameState Pass(GameState gameState, Player actingPlayer)
-        {
-            Round newRound;
-            var newPlayerStates = gameState.PlayerStates;
-
+        {                        
             if (CurrentAuction != null)
             {
                 var nextPlayer = CurrentAuction.GetPlayerAfter(actingPlayer);                
 
                 if (nextPlayer == CurrentAuction.HighBidder)
                 {
-                    // auction is over
-                    var stateForWinningPlayer = gameState.GetPlayerState(CurrentAuction.HighBidder);
-                    var winningPlayerPrivates = stateForWinningPlayer.PrivateCompanies.Add(CurrentAuction.Selection);
-
-                    newPlayerStates = newPlayerStates.Remove(stateForWinningPlayer);                    
-                    newPlayerStates = newPlayerStates.Add(new PlayerState(stateForWinningPlayer.Player, stateForWinningPlayer.Money - CurrentAuction.HighBid, winningPlayerPrivates));
-
-                    var seedFunding = CurrentAuction.Selection.Value - CurrentAuction.HighBid;
-
-                    newRound = new PrivateAuctionRound(Privates.Remove(CurrentAuction.Selection), null, gameState.Game.GetPlayerAfter(LastToAct), LastToAct, SeedMoney - seedFunding);
+                    return CompleteAuction(gameState, CurrentAuction);
                 }
                 else
                 {
+                    // auction continues
                     var newAuction = new PrivateCompanyAuction(CurrentAuction.Selection, CurrentAuction.HighBidder, CurrentAuction.HighBid, CurrentAuction.Participants.Remove(actingPlayer));
-                    newRound = new PrivateAuctionRound(Privates, newAuction, nextPlayer, LastToAct, SeedMoney);
+                    var newRound = new PrivateAuctionRound(Privates, newAuction, nextPlayer, LastToAct, SeedMoney);
+                    return new GameState(gameState.Game, newRound, gameState.PlayerWithPriority, gameState.PlayerStates, gameState.CompanyStates);
                 }
             }            
             else if (ActivePlayer == LastToAct)
             {
                 var priorityDeal = gameState.Game.GetPlayerAfter(LastToAct);                
-                newRound = new StockRound(1, priorityDeal);
+                var newRound = new StockRound(1, priorityDeal);
+                return new GameState(gameState.Game, newRound, gameState.PlayerWithPriority, gameState.PlayerStates, gameState.CompanyStates);
             }
             else
             {
-                newRound = new PrivateAuctionRound(Privates, CurrentAuction, gameState.Game.GetPlayerAfter(ActivePlayer), LastToAct, SeedMoney);
-            }
+                var newRound = new PrivateAuctionRound(Privates, CurrentAuction, gameState.Game.GetPlayerAfter(ActivePlayer), LastToAct, SeedMoney);
+                return new GameState(gameState.Game, newRound, gameState.PlayerWithPriority, gameState.PlayerStates, gameState.CompanyStates);
+            }            
+        }
 
+        private GameState CompleteAuction(GameState gameState, PrivateCompanyAuction currentAuction)
+        {            
+            var stateForWinningPlayer = gameState.GetPlayerState(currentAuction.HighBidder);
+            var winningPlayerPrivates = stateForWinningPlayer.PrivateCompanies.Add(currentAuction.Selection);
+
+            var newPlayerStates = gameState.PlayerStates
+                .Remove(stateForWinningPlayer)
+                .Add(new PlayerState(stateForWinningPlayer.Player, stateForWinningPlayer.Money - currentAuction.HighBid, winningPlayerPrivates));
+
+            var seedFunding = currentAuction.Selection.Value - currentAuction.HighBid;
+
+            var newRound = new PrivateAuctionRound(Privates.Remove(currentAuction.Selection), null, gameState.Game.GetPlayerAfter(LastToAct), LastToAct, SeedMoney - seedFunding);
             return new GameState(gameState.Game, newRound, gameState.PlayerWithPriority, newPlayerStates, gameState.CompanyStates);
         }
 
