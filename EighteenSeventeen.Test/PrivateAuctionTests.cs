@@ -68,7 +68,7 @@ namespace EighteenSeventeen.Test
             var auction = privateRound.CurrentAuction;
             Assert.NotNull(auction);            
             Assert.Equal(PrivateCompanies.CoalMine, auction.Selection);
-            Assert.Equal(45, auction.CurrentBid);
+            Assert.Equal(45, auction.HighBid);
             Assert.Equal(Player1, auction.HighBidder);
         }
 
@@ -79,6 +79,7 @@ namespace EighteenSeventeen.Test
             
             var state = Builder.GetCurrentState();
             var pendingAction = Game.GetPendingAction(state);
+            Assert.Equal(Player2, pendingAction.ActivePlayer);
 
             var passChoice = pendingAction.Choices.OfType<PassChoice>().SingleOrDefault();
             var bidChoice = pendingAction.Choices.OfType<BidChoice<PrivateCompany>>().SingleOrDefault();
@@ -118,8 +119,40 @@ namespace EighteenSeventeen.Test
             var auction = privateRound.CurrentAuction;
             Assert.NotNull(auction);
             Assert.Equal(PrivateCompanies.TrainStation, auction.Selection);
-            Assert.Equal(70, auction.CurrentBid);
+            Assert.Equal(70, auction.HighBid);
             Assert.Equal(Player2, auction.HighBidder);
+        }
+
+        [Fact]
+        public void PlayersThatPassDuringAuctionAreSkippedAfterBid()
+        {
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.UnionBridge, 55);
+            Builder.PlayerPasses(Player2);
+            Builder.PlayerBidsOnPrivate(Player3, PrivateCompanies.UnionBridge, 60);
+            Builder.PlayerPasses(Player4);
+
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.UnionBridge, 65);
+
+            var state = Builder.GetCurrentState();
+            var privateRound = state.Round as PrivateAuctionRound;
+            Assert.NotNull(privateRound);
+            Assert.Equal(Player3, privateRound.ActivePlayer);            
+        }
+
+        [Fact]
+        public void PlayersThatPassDuringAuctionAreSkippedAfterPass()
+        {
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.UnionBridge, 55);
+            Builder.PlayerPasses(Player2);
+            Builder.PlayerBidsOnPrivate(Player3, PrivateCompanies.UnionBridge, 60);
+            Builder.PlayerBidsOnPrivate(Player4, PrivateCompanies.UnionBridge, 65);
+
+            Builder.PlayerPasses(Player1);
+           
+            var state = Builder.GetCurrentState();
+            var privateRound = state.Round as PrivateAuctionRound;
+            Assert.NotNull(privateRound);
+            Assert.Equal(Player3, privateRound.ActivePlayer);
         }
 
         [Fact]
@@ -209,7 +242,7 @@ namespace EighteenSeventeen.Test
         {
             Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.TrainStation, 400);
             Builder.AssertValidationErrorForCurrentState("Bid of '400' is not legal - player 'Paul' has only 315 cash available.");
-        }
+        }       
 
         //[Fact]
         //public void PrivateBidCannotPutTheSeedMoneyIntoNegative()

@@ -10,7 +10,7 @@ namespace EighteenSeventeen.Core
 {
     public class Game
     {
-        public IImmutableList<Player> Players { get; }        
+        public ImmutableList<Player> Players { get; }        
 
         public Game(params string[] names)
         {            
@@ -59,7 +59,7 @@ namespace EighteenSeventeen.Core
                 .Select(x => new PlayerState(x, startingCash))
                 .ToImmutableList();
 
-            return new GameState(this, PrivateAuctionRound.StartOfAuction(this), Players.First(), playerStates, ImmutableList<CompanyState>.Empty);
+            return new GameState(this, PrivateAuctionRound.StartOfAuctionRound(this), Players.First(), playerStates, ImmutableList<CompanyState>.Empty);
         }
         
     }

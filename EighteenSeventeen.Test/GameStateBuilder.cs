@@ -42,5 +42,11 @@ namespace EighteenSeventeen.Test
 
             return state;
         }
+
+        public PendingAction GetCurrentPendingAction()
+        {
+            var state = GetCurrentState();
+            return Game.GetPendingAction(state);
+        }
     }
 }

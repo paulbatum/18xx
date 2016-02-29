@@ -23,7 +23,7 @@ namespace EighteenSeventeen.Core.Rounds
             SeedMoney = seedMoney;
         }
 
-        public static PrivateAuctionRound StartOfAuction(Game game)
+        public static PrivateAuctionRound StartOfAuctionRound(Game game)
         {
             return new PrivateAuctionRound(PrivateCompanies.All, null, game.Players.First(), game.Players.Last(), 200);
         }
@@ -34,8 +34,8 @@ namespace EighteenSeventeen.Core.Rounds
             {
                 validator.Validate(selection == CurrentAuction.Selection,
                     $"Bid on '{selection}' is not legal - there is already an auction for '{CurrentAuction.Selection}' in progress.");
-                validator.Validate(bid > CurrentAuction.CurrentBid,
-                    $"Bid of '{bid}' is not legal - the current high bid is '{CurrentAuction.CurrentBid}'.");
+                validator.Validate(bid > CurrentAuction.HighBid,
+                    $"Bid of '{bid}' is not legal - the current high bid is '{CurrentAuction.HighBid}'.");
             }
 
             validator.ValidateMultipleOf(5, bid, $"Bid of '{bid}' is not legal - must be a multiple of 5.");
@@ -46,10 +46,11 @@ namespace EighteenSeventeen.Core.Rounds
             validator.Validate(bid <= playerState.Money, $"Bid of '{bid}' is not legal - player '{player}' has only {playerState.Money} cash available.");
         }
 
-        public GameState Bid(GameState gameState, Player player, PrivateCompany selection, int bid)
+        public GameState Bid(GameState gameState, Player biddingPlayer, PrivateCompany selection, int bid)
         {
             if (CurrentAuction != null)
             {
+                var nextPlayer = CurrentAuction.GetPlayerAfter(biddingPlayer);
                 if (bid == selection.Value)
                 {
                     // We need to use the same logic as for when the last player passes
@@ -57,15 +58,15 @@ namespace EighteenSeventeen.Core.Rounds
                 }
                 else
                 {
-                    var auction = new PrivateCompanyAuction(selection, player, bid);
-                    var round = new PrivateAuctionRound(Privates, auction, gameState.Game.GetPlayerAfter(player), LastToAct, SeedMoney);
+                    var auction = new PrivateCompanyAuction(selection, biddingPlayer, bid, CurrentAuction.Participants);
+                    var round = new PrivateAuctionRound(Privates, auction, nextPlayer, LastToAct, SeedMoney);
                     return new GameState(gameState.Game, round, gameState.PlayerWithPriority, gameState.PlayerStates, gameState.CompanyStates);
                 }
             }
             else
             {
-                var auction = new PrivateCompanyAuction(selection, player, bid);
-                var round = new PrivateAuctionRound(Privates, auction, gameState.Game.GetPlayerAfter(player), player, SeedMoney);
+                var auction = new PrivateCompanyAuction(selection, biddingPlayer, bid, gameState.Game.Players);
+                var round = new PrivateAuctionRound(Privates, auction, gameState.Game.GetPlayerAfter(biddingPlayer), biddingPlayer, SeedMoney);
                 return new GameState(gameState.Game, round, gameState.PlayerWithPriority, gameState.PlayerStates, gameState.CompanyStates);
             }
         }
@@ -77,22 +78,25 @@ namespace EighteenSeventeen.Core.Rounds
 
             if (CurrentAuction != null)
             {
-                var nextPlayer = gameState.Game.GetPlayerAfter(actingPlayer);
-                if(nextPlayer == CurrentAuction.HighBidder)
+                var nextPlayer = CurrentAuction.GetPlayerAfter(actingPlayer);                
+
+                if (nextPlayer == CurrentAuction.HighBidder)
                 {
                     // auction is over
                     var stateForWinningPlayer = gameState.GetPlayerState(CurrentAuction.HighBidder);
                     var winningPlayerPrivates = stateForWinningPlayer.PrivateCompanies.Add(CurrentAuction.Selection);
 
                     newPlayerStates = newPlayerStates.Remove(stateForWinningPlayer);                    
-                    newPlayerStates = newPlayerStates.Add(new PlayerState(stateForWinningPlayer.Player, stateForWinningPlayer.Money - CurrentAuction.CurrentBid, winningPlayerPrivates));
+                    newPlayerStates = newPlayerStates.Add(new PlayerState(stateForWinningPlayer.Player, stateForWinningPlayer.Money - CurrentAuction.HighBid, winningPlayerPrivates));
 
-                    var seedFunding = CurrentAuction.Selection.Value - CurrentAuction.CurrentBid;
+                    var seedFunding = CurrentAuction.Selection.Value - CurrentAuction.HighBid;
 
                     newRound = new PrivateAuctionRound(Privates.Remove(CurrentAuction.Selection), null, gameState.Game.GetPlayerAfter(LastToAct), LastToAct, SeedMoney - seedFunding);
-                } else
+                }
+                else
                 {
-                    newRound = new PrivateAuctionRound(Privates, CurrentAuction, nextPlayer, LastToAct, SeedMoney);
+                    var newAuction = new PrivateCompanyAuction(CurrentAuction.Selection, CurrentAuction.HighBidder, CurrentAuction.HighBid, CurrentAuction.Participants.Remove(actingPlayer));
+                    newRound = new PrivateAuctionRound(Privates, newAuction, nextPlayer, LastToAct, SeedMoney);
                 }
             }            
             else if (ActivePlayer == LastToAct)
@@ -130,7 +134,7 @@ namespace EighteenSeventeen.Core.Rounds
 
         private BidChoice<PrivateCompany> GetLegalBid(PlayerState activePlayerState, PrivateCompany selection)
         {           
-            var currentBid = this.CurrentAuction?.CurrentBid ?? 0;
+            var currentBid = this.CurrentAuction?.HighBid ?? 0;
             var min = Math.Max(selection.Value - SeedMoney, currentBid + 5);
             var max = Math.Min(selection.Value, activePlayerState.GetMoneyRoundedDownToMultipleOf(5));
             
@@ -142,8 +146,8 @@ namespace EighteenSeventeen.Core.Rounds
 
         public class PrivateCompanyAuction : Auction<PrivateCompany>
         {
-            public PrivateCompanyAuction(PrivateCompany selection, Player highBidder, int currentBid) 
-                : base (selection, highBidder, currentBid)
+            public PrivateCompanyAuction(PrivateCompany selection, Player highBidder, int currentBid, ImmutableList<Player> participants)
+                : base (selection, highBidder, currentBid, participants)
             {
 
             }
