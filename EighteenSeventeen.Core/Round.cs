@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using EighteenSeventeen.Core.Actions;
+using EighteenSeventeen.Core.DataTypes;
 
 namespace EighteenSeventeen.Core
 {

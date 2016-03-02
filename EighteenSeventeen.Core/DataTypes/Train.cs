@@ -1,17 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.Immutable;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace EighteenSeventeen.Core
+namespace EighteenSeventeen.Core.DataTypes
 {
     public class Train
     {
         public TrainType Type { get; }
 
-        private static ImmutableDictionary<TrainType, int> Costs => new Dictionary<TrainType, int>
+        private readonly static ImmutableDictionary<TrainType, int> Costs = new Dictionary<TrainType, int>
         {
             [TrainType.Two] = 100,
             [TrainType.TwoPlus] = 100,

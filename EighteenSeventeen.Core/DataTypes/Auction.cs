@@ -1,11 +1,12 @@
-﻿using System;
+﻿using EighteenSeventeen.Core.DataTypes;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EighteenSeventeen.Core
+namespace EighteenSeventeen.Core.DataTypes
 {
     // I'm going to regret this
     public abstract class Auction<T>
@@ -24,7 +25,5 @@ namespace EighteenSeventeen.Core
         }
 
         public Player GetPlayerAfter(Player player) => Participants[(Participants.IndexOf(player) + 1) % Participants.Count];
-
-
     }
 }

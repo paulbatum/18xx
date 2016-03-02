@@ -1,11 +1,8 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace EighteenSeventeen.Core
+namespace EighteenSeventeen.Core.DataTypes
 {
     public class GameState
     {

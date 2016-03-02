@@ -1,4 +1,5 @@
-﻿using EighteenSeventeen.Core.Rounds;
+﻿using EighteenSeventeen.Core.DataTypes;
+using EighteenSeventeen.Core.Rounds;
 using System;
 using System.Collections.Generic;
 using System.Linq;

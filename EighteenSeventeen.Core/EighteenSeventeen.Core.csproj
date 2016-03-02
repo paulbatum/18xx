@@ -34,22 +34,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="Auction.cs" />
+    <Compile Include="DataTypes\Auction.cs" />
     <Compile Include="Choice.cs" />
-    <Compile Include="Company.cs" />
-    <Compile Include="CompanyAction.cs" />
+    <Compile Include="DataTypes\Company.cs" />
     <Compile Include="Game.cs" />
-    <Compile Include="GameState.cs" />
+    <Compile Include="DataTypes\GameState.cs" />
     <Compile Include="GameAction.cs" />
     <Compile Include="Actions\PlayerPassAction.cs" />
     <Compile Include="Actions\PlayerPrivateBidAction.cs" />
     <Compile Include="PendingAction.cs" />
-    <Compile Include="Player.cs" />
-    <Compile Include="PrivateCompany.cs" />
+    <Compile Include="DataTypes\Player.cs" />
+    <Compile Include="DataTypes\PrivateCompany.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Round.cs" />
     <Compile Include="Rounds\PrivateAuctionRound.cs" />
-    <Compile Include="Train.cs" />
+    <Compile Include="DataTypes\Train.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Collections.Immutable, Version=1.1.37.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">

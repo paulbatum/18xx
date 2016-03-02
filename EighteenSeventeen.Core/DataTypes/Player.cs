@@ -1,11 +1,12 @@
-﻿using System;
+﻿using EighteenSeventeen.Core.DataTypes;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace EighteenSeventeen.Core
+namespace EighteenSeventeen.Core.DataTypes
 {
     public class Player
     {
@@ -16,10 +17,7 @@ namespace EighteenSeventeen.Core
             Name = name;
         }
 
-        public override string ToString()
-        {
-            return Name;
-        }
+        public override string ToString() => Name;
     }
 
     public class PlayerState
@@ -37,12 +35,8 @@ namespace EighteenSeventeen.Core
 
         public PlayerState(Player player, int money) : this(player, money, ImmutableList<PrivateCompany>.Empty)
         {
-
         }
 
-        public int GetMoneyRoundedDownToMultipleOf(int multiple)
-        {
-            return Money - (Money % multiple);
-        }
+        public int GetMoneyRoundedDownToMultipleOf(int multiple) => Money - (Money % multiple);        
     }
 }
