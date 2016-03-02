@@ -202,6 +202,19 @@ namespace EighteenSeventeen.Test
         }
 
         [Fact]
+        public void AuctionCompletesWhenOpeningBidIsMaximumBid()
+        {
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.PittsburghSteelMill, 40);            
+
+            var state = Builder.GetCurrentState();
+
+            var privateRound = state.Round as PrivateAuctionRound;
+            Assert.NotNull(privateRound);
+            Assert.Null(privateRound.CurrentAuction);            
+            Assert.Equal(Player2, privateRound.ActivePlayer);            
+        }
+
+        [Fact]
         public void NextPlayerIsActiveWhenWinningBidIsMade()
         {
             Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.MajorCoalMine, 60);
