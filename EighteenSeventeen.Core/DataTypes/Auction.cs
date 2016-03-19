@@ -24,6 +24,8 @@ namespace EighteenSeventeen.Core.DataTypes
             Participants = participants;
         }
 
-        public Player GetPlayerAfter(Player player) => Participants[(Participants.IndexOf(player) + 1) % Participants.Count];
+        public Player GetPlayerAfter(Player player) => Participants.GetPlayerAfter(player);
+        public Player GetNextPlayer() => GetPlayerAfter(HighBidder);
+        public bool IsComplete => Participants.Count == 1;
     }
 }

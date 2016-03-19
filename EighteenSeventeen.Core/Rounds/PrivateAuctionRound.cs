@@ -28,15 +28,14 @@ namespace EighteenSeventeen.Core.Rounds
 
         public static PrivateAuctionRound StartOfRound(ImmutableList<Player> players) => 
             new PrivateAuctionRound(players, PrivateCompanies.All, null, players.First(), players.Last(), 200);
-
-        //public PrivateAuctionRound WithActivePlayer(Player activePlayer) => new PrivateAuctionRound(Privates, CurrentAuction, activePlayer, LastToAct, SeedMoney);
+        
         private PrivateAuctionRound Update(ImmutableList<PrivateCompany> privates = null, PrivateCompanyAuction auction = null, Player activePlayer = null, Player lastToAct = null, int? seedMoney = null) =>
             new PrivateAuctionRound(Players, privates ?? Privates, auction ?? CurrentAuction, activePlayer ?? ActivePlayer, lastToAct ?? LastToAct, seedMoney ?? SeedMoney);        
 
         public PrivateAuctionRound StartAuction(Player biddingPlayer, PrivateCompany selection, int bid)
         {
             var auction = new PrivateCompanyAuction(selection, biddingPlayer, bid, Players);
-            return new PrivateAuctionRound(Players, Privates, auction, Players.GetPlayerAfter(biddingPlayer), biddingPlayer, SeedMoney);            
+            return Update(auction: auction, activePlayer: Players.GetPlayerAfter(biddingPlayer), lastToAct: biddingPlayer);            
         }
 
         public static void ValidateBid(GameActionValidator validator, PrivateAuctionRound round, PlayerState actingPlayerState, PrivateCompany selection, int bid)
@@ -84,15 +83,13 @@ namespace EighteenSeventeen.Core.Rounds
         {                        
             if (round.CurrentAuction != null)
             {
-                var nextPlayer = round.CurrentAuction.GetPlayerAfter(passingPlayer);                
-
-                if (nextPlayer == round.CurrentAuction.HighBidder)
+                var newAuction = round.CurrentAuction.Pass(passingPlayer);
+                if (newAuction.IsComplete)
                 {                    
                     return CompleteAuction(gameState, round);
                 }
 
-                // auction continues
-                var newAuction = round.CurrentAuction.Pass(passingPlayer);
+                // auction continues                    
                 round = round.Update(auction: newAuction, activePlayer: newAuction.GetNextPlayer());
                 return gameState.WithRound(round);                    
             }            
@@ -183,10 +180,7 @@ namespace EighteenSeventeen.Core.Rounds
                 new PrivateCompanyAuction(selection, player, bid, Participants);
 
             public PrivateCompanyAuction Pass(Player player) =>
-                new PrivateCompanyAuction(Selection, HighBidder, HighBid, Participants.Remove(player));
-
-            public Player GetNextPlayer() => Participants.GetPlayerAfter(HighBidder);
-
+                new PrivateCompanyAuction(Selection, HighBidder, HighBid, Participants.Remove(player));            
         }
     }
 }
