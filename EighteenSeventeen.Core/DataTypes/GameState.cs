@@ -29,5 +29,10 @@ namespace EighteenSeventeen.Core.DataTypes
             throw new NotImplementedException();
         }
 
+        public GameState WithRound(Round round) => Update(round: round);
+
+        private GameState Update(Round round = null, Player playerWithPriority = null, ImmutableList<PlayerState> playerStates = null, ImmutableList<CompanyState> companyStates = null) =>
+            new GameState(Game, round ?? Round, playerWithPriority ?? PlayerWithPriority, playerStates ?? PlayerStates, companyStates ?? CompanyStates);        
+
     }
 }

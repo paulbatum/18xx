@@ -310,6 +310,65 @@ namespace EighteenSeventeen.Test
         }
 
         [Fact]
+        public void GameEntersStockRoundIfAllPlayersPassInPrivateAuctionAfterSomePrivatesAreBought()
+        {
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.MajorMailContract, 95);
+            Builder.PlayerPasses(Player2, Player3, Player4);
+
+            Builder.PlayerPasses(Player2, Player3, Player4, Player1);
+
+            var state = Builder.GetCurrentState();
+
+            GameAssert.CurrentRoundIs(state, "SR1");
+            GameAssert.PlayerHasPriority(state, Player2);
+        }
+
+        [Fact]
+        public void GameEntersStockRoundIfAllPrivatesAreBought()
+        {
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.MajorMailContract, 120);
+            Builder.PlayerBidsOnPrivate(Player2, PrivateCompanies.MailContract, 90);
+            Builder.PlayerBidsOnPrivate(Player3, PrivateCompanies.MinorMailContract, 60);
+            Builder.PlayerBidsOnPrivate(Player4, PrivateCompanies.TrainStation, 80);
+
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.MajorCoalMine, 90);
+            Builder.PlayerBidsOnPrivate(Player2, PrivateCompanies.CoalMine, 60);
+            Builder.PlayerBidsOnPrivate(Player3, PrivateCompanies.MinorCoalMine, 30);
+            Builder.PlayerBidsOnPrivate(Player4, PrivateCompanies.MountainEngineers, 40);
+
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.UnionBridge, 80);
+            Builder.PlayerBidsOnPrivate(Player2, PrivateCompanies.OhioBridge, 40);
+            Builder.PlayerBidsOnPrivate(Player3, PrivateCompanies.PittsburghSteelMill, 40);            
+
+            var state = Builder.GetCurrentState();
+
+            GameAssert.CurrentRoundIs(state, "SR1");
+            GameAssert.PlayerHasPriority(state, Player4);
+        }
+
+        [Fact]
+        public void PriorityDealDoesNotTransferUntilTheRoundCompletes()
+        {
+            Builder.PlayerBidsOnPrivate(Player1, PrivateCompanies.MajorMailContract, 95);
+            Builder.PlayerPasses(Player2);
+            Builder.PlayerBidsOnPrivate(Player3, PrivateCompanies.MajorMailContract, 100);
+            Builder.PlayerPasses(Player4, Player1);
+
+            var state = Builder.GetCurrentState();
+            
+            GameAssert.PlayerHasPriority(state, Player1);
+            GameAssert.ActivePlayerIs(state, Player2);
+
+            Builder.PlayerPasses(Player2, Player3, Player4, Player1);
+
+            state = Builder.GetCurrentState();
+
+            GameAssert.CurrentRoundIs(state, "SR1");
+            GameAssert.PlayerHasPriority(state, Player2);
+        }
+
+
+        [Fact]
         public void RealisticPrivateAuctionRoundCanBeExecuted()
         {
             // Paul opens with max bid for pittsburgh
@@ -363,10 +422,12 @@ namespace EighteenSeventeen.Test
             // Jacky makes a grab for a bit more bidding power
             Builder.PlayerBidsOnPrivate(Player3, PrivateCompanies.OhioBridge, 25);
             Builder.PlayerPasses(Player4, Player1, Player2);
+            
+            var state = Builder.GetCurrentState();
 
             // All privates are gone. We enter the stock round
-            var state = Builder.GetCurrentState();
             GameAssert.CurrentRoundIs(state, "SR1");
+            GameAssert.PlayerHasPriority(state, Player4);
             GameAssert.ActivePlayerIs(state, Player4);  
         }
     }

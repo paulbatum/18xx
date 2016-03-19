@@ -14,110 +14,131 @@ namespace EighteenSeventeen.Core.Rounds
         public int SeedMoney { get; }
         public override string Description { get; } = "PR";
         public ImmutableList<PrivateCompany> Privates { get; }
+        public ImmutableList<Player> Players { get; }
         public PrivateCompanyAuction CurrentAuction { get; }
 
-        public PrivateAuctionRound(ImmutableList<PrivateCompany> privates, PrivateCompanyAuction auction, Player activePlayer, Player lastToAct, int seedMoney)
+        public PrivateAuctionRound(ImmutableList<Player> players, ImmutableList<PrivateCompany> privates, PrivateCompanyAuction auction, Player activePlayer, Player lastToAct, int seedMoney)
             : base(activePlayer, lastToAct)
         {
+            Players = players;
             Privates = privates;
             CurrentAuction = auction;
             SeedMoney = seedMoney;
         }
 
-        public static PrivateAuctionRound StartOfAuctionRound(Game game)
+        public static PrivateAuctionRound StartOfRound(ImmutableList<Player> players) => 
+            new PrivateAuctionRound(players, PrivateCompanies.All, null, players.First(), players.Last(), 200);
+
+        //public PrivateAuctionRound WithActivePlayer(Player activePlayer) => new PrivateAuctionRound(Privates, CurrentAuction, activePlayer, LastToAct, SeedMoney);
+        private PrivateAuctionRound Update(ImmutableList<PrivateCompany> privates = null, PrivateCompanyAuction auction = null, Player activePlayer = null, Player lastToAct = null, int? seedMoney = null) =>
+            new PrivateAuctionRound(Players, privates ?? Privates, auction ?? CurrentAuction, activePlayer ?? ActivePlayer, lastToAct ?? LastToAct, seedMoney ?? SeedMoney);        
+
+        public PrivateAuctionRound StartAuction(Player biddingPlayer, PrivateCompany selection, int bid)
         {
-            return new PrivateAuctionRound(PrivateCompanies.All, null, game.Players.First(), game.Players.Last(), 200);
+            var auction = new PrivateCompanyAuction(selection, biddingPlayer, bid, Players);
+            return new PrivateAuctionRound(Players, Privates, auction, Players.GetPlayerAfter(biddingPlayer), biddingPlayer, SeedMoney);            
         }
 
-        public void ValidateBid(GameState gameState, GameActionValidator validator, Player player, PrivateCompany selection, int bid)
+        public static void ValidateBid(GameActionValidator validator, PrivateAuctionRound round, PlayerState actingPlayerState, PrivateCompany selection, int bid)
         {
-            if (CurrentAuction != null)
+            var currentAuction = round.CurrentAuction;
+            if (currentAuction != null)
             {
-                validator.Validate(selection == CurrentAuction.Selection,
-                    $"Bid on '{selection}' is not legal - there is already an auction for '{CurrentAuction.Selection}' in progress.");
-                validator.Validate(bid > CurrentAuction.HighBid,
-                    $"Bid of '{bid}' is not legal - the current high bid is '{CurrentAuction.HighBid}'.");
+                validator.Validate(selection == currentAuction.Selection,
+                    $"Bid on '{selection}' is not legal - there is already an auction for '{currentAuction.Selection}' in progress.");
+                validator.Validate(bid > currentAuction.HighBid,
+                    $"Bid of '{bid}' is not legal - the current high bid is '{currentAuction.HighBid}'.");
             }
 
             validator.ValidateMultipleOf(5, bid, $"Bid of '{bid}' is not legal - must be a multiple of 5.");
             validator.Validate(bid <= selection.Value, $"Bid of '{bid}' is not legal - overbidding is not permitted.");
-            validator.Validate(SeedMoney >= selection.Value - bid, $"Bid of '{bid}' is not legal - not enough seed money.");
+            validator.Validate(round.SeedMoney >= selection.Value - bid, $"Bid of '{bid}' is not legal - not enough seed money.");
 
-            var playerState = gameState.GetPlayerState(player);
-            validator.Validate(bid <= playerState.Money, $"Bid of '{bid}' is not legal - player '{player}' has only {playerState.Money} cash available.");
+            validator.Validate(bid <= actingPlayerState.Money, $"Bid of '{bid}' is not legal - player '{actingPlayerState.Player}' has only {actingPlayerState.Money} cash available.");
         }
 
-        public GameState Bid(GameState gameState, Player biddingPlayer, PrivateCompany selection, int bid)
-        {
-            if (CurrentAuction != null)
-            {
-                var auction = new PrivateCompanyAuction(selection, biddingPlayer, bid, CurrentAuction.Participants);
-                
-                if (bid == selection.Value)
-                {
-                    return CompleteAuction(gameState, auction);
-                }
-                else
-                {
-                    var nextPlayer = CurrentAuction.GetPlayerAfter(biddingPlayer);
-                    var round = new PrivateAuctionRound(Privates, auction, nextPlayer, LastToAct, SeedMoney);
-                    return new GameState(gameState.Game, round, gameState.PlayerWithPriority, gameState.PlayerStates, gameState.CompanyStates);
-                }
-            }
-            else
-            {
-                var auction = new PrivateCompanyAuction(selection, biddingPlayer, bid, gameState.Game.Players);
-                var round = new PrivateAuctionRound(Privates, auction, gameState.Game.GetPlayerAfter(biddingPlayer), biddingPlayer, SeedMoney);
-                return new GameState(gameState.Game, round, gameState.PlayerWithPriority, gameState.PlayerStates, gameState.CompanyStates);
-            }
-        }
-
-        public GameState Pass(GameState gameState, Player actingPlayer)
-        {                        
-            if (CurrentAuction != null)
-            {
-                var nextPlayer = CurrentAuction.GetPlayerAfter(actingPlayer);                
-
-                if (nextPlayer == CurrentAuction.HighBidder)
-                {
-                    return CompleteAuction(gameState, CurrentAuction);
-                }
-                else
-                {
-                    // auction continues
-                    var newAuction = new PrivateCompanyAuction(CurrentAuction.Selection, CurrentAuction.HighBidder, CurrentAuction.HighBid, CurrentAuction.Participants.Remove(actingPlayer));
-                    var newRound = new PrivateAuctionRound(Privates, newAuction, nextPlayer, LastToAct, SeedMoney);
-                    return new GameState(gameState.Game, newRound, gameState.PlayerWithPriority, gameState.PlayerStates, gameState.CompanyStates);
-                }
-            }            
-            else if (ActivePlayer == LastToAct)
-            {
-                var priorityDeal = gameState.Game.GetPlayerAfter(LastToAct);                
-                var newRound = new StockRound(1, priorityDeal);
-                return new GameState(gameState.Game, newRound, gameState.PlayerWithPriority, gameState.PlayerStates, gameState.CompanyStates);
-            }
-            else
-            {
-                var newRound = new PrivateAuctionRound(Privates, CurrentAuction, gameState.Game.GetPlayerAfter(ActivePlayer), LastToAct, SeedMoney);
-                return new GameState(gameState.Game, newRound, gameState.PlayerWithPriority, gameState.PlayerStates, gameState.CompanyStates);
-            }            
-        }
-
-        private GameState CompleteAuction(GameState gameState, PrivateCompanyAuction currentAuction)
+        public static GameState MakeBid(GameState gameState, PrivateAuctionRound round, PlayerState biddingPlayerState, PrivateCompany selection, int bid)
         {            
+            if (round.CurrentAuction == null)
+            {
+                // No auction is in progress so start a new auction for the selected private 
+                round = round.StartAuction(biddingPlayerState.Player, selection, bid);
+            }
+            else
+            {
+                // Apply the new bid to the current auction
+                var newAuction = round.CurrentAuction.MakeBid(selection, biddingPlayerState.Player, bid);
+                round = round.Update(auction: newAuction, activePlayer: newAuction.GetNextPlayer());
+            }
+
+            if (bid == selection.Value)
+            {
+                // Maximum bid was made, auction terminates                                
+                return CompleteAuction(gameState, round);
+            }
+
+            return gameState.WithRound(round);
+        }
+
+        public static GameState Pass(GameState gameState, PrivateAuctionRound round, Player passingPlayer)
+        {                        
+            if (round.CurrentAuction != null)
+            {
+                var nextPlayer = round.CurrentAuction.GetPlayerAfter(passingPlayer);                
+
+                if (nextPlayer == round.CurrentAuction.HighBidder)
+                {                    
+                    return CompleteAuction(gameState, round);
+                }
+
+                // auction continues
+                var newAuction = round.CurrentAuction.Pass(passingPlayer);
+                round = round.Update(auction: newAuction, activePlayer: newAuction.GetNextPlayer());
+                return gameState.WithRound(round);                    
+            }            
+            else if (round.ActivePlayer == round.LastToAct)
+            {
+                // Exit the auction round early as everyone passed
+                var priorityDeal = round.Players.GetPlayerAfter(round.LastToAct);
+                var newRound = new StockRound(1, priorityDeal);
+                return new GameState(gameState.Game, newRound, priorityDeal, gameState.PlayerStates, gameState.CompanyStates);
+            }
+            else
+            {
+                // player elects not to put anything up for auction
+                var newRound = round.Update( activePlayer: gameState.Game.GetPlayerAfter(passingPlayer));
+                return gameState.WithRound(newRound);
+            }            
+        }
+
+        private static GameState CompleteAuction(GameState gameState, PrivateAuctionRound round)
+        {
+            var currentAuction = round.CurrentAuction;
             var stateForWinningPlayer = gameState.GetPlayerState(currentAuction.HighBidder);
             var winningPlayerPrivates = stateForWinningPlayer.PrivateCompanies.Add(currentAuction.Selection);
 
-            var newPlayerStates = gameState.PlayerStates
-                .Remove(stateForWinningPlayer)
-                .Add(new PlayerState(stateForWinningPlayer.Player, stateForWinningPlayer.Money - currentAuction.HighBid, winningPlayerPrivates));
+            var newPlayerStates = gameState.PlayerStates.Replace(stateForWinningPlayer, 
+                new PlayerState(stateForWinningPlayer.Player, stateForWinningPlayer.Money - currentAuction.HighBid, winningPlayerPrivates));                
 
             var seedFunding = currentAuction.Selection.Value - currentAuction.HighBid;
+            var remainingPrivates = round.Privates.Remove(currentAuction.Selection);
+            var nextPlayer = round.Players.GetPlayerAfter(round.LastToAct);
 
-            var newRound = new PrivateAuctionRound(Privates.Remove(currentAuction.Selection), null, gameState.Game.GetPlayerAfter(LastToAct), LastToAct, SeedMoney - seedFunding);
-            return new GameState(gameState.Game, newRound, gameState.PlayerWithPriority, newPlayerStates, gameState.CompanyStates);
+            Round newRound;            
+            if (remainingPrivates.IsEmpty)
+            {
+                newRound = new StockRound(1, nextPlayer);
+                return new GameState(gameState.Game, newRound, nextPlayer, newPlayerStates, gameState.CompanyStates);
+            }
+            else
+            {
+                newRound = new PrivateAuctionRound(round.Players, remainingPrivates, null, nextPlayer, round.LastToAct, round.SeedMoney - seedFunding);
+                return new GameState(gameState.Game, newRound, gameState.PlayerWithPriority, newPlayerStates, gameState.CompanyStates);
+            }
+            
+            
         }
-
+        
         public override IEnumerable<IChoice> GetChoices(GameState gameState)
         {
             var choices = new List<IChoice>();
@@ -158,14 +179,14 @@ namespace EighteenSeventeen.Core.Rounds
 
             }
 
-            //internal GameState Pass(GameState gameState, Player player, PrivateAuctionRound privateAuctionRound)
-            //{
-            //    var nextPlayer = gameState.Game.GetPlayerAfter(player);
-            //    if(nextPlayer == HighBidder)
-            //    {
-            //        // Auction is over
-            //    }
-            //}
+            public PrivateCompanyAuction MakeBid(PrivateCompany selection, Player player, int bid) =>
+                new PrivateCompanyAuction(selection, player, bid, Participants);
+
+            public PrivateCompanyAuction Pass(Player player) =>
+                new PrivateCompanyAuction(Selection, HighBidder, HighBid, Participants.Remove(player));
+
+            public Player GetNextPlayer() => Participants.GetPlayerAfter(HighBidder);
+
         }
     }
 }

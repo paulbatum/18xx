@@ -11,34 +11,25 @@ namespace EighteenSeventeen.Core.Actions
 {
     public class PlayerPrivateBidAction : GameAction, IGameAction<PrivateAuctionRound>
     {        
-        public PrivateCompany Target { get; }        
+        public PrivateCompany Selection { get; }        
         public int Bid { get; }
 
         public PlayerPrivateBidAction(IGameAction parent, Player actingPlayer, PrivateCompany target, int bid) : base(parent, actingPlayer)
         {            
-            Target = target;
+            Selection = target;
             Bid = bid;
         }
 
-        public override bool AppliesToRound(Round round)
-        {
-            return round is PrivateAuctionRound;
-        }
+        public override bool AppliesToRound(Round round) => round is PrivateAuctionRound;
 
         public void Validate(GameState gameState, GameActionValidator validator, PrivateAuctionRound round)
         {
-            round.ValidateBid(gameState, validator, ActingPlayer, Target, Bid);
+            PrivateAuctionRound.ValidateBid(validator, round, gameState.GetPlayerState(ActingPlayer), Selection, Bid);
         }
 
         public GameState Apply(GameState gameState, PrivateAuctionRound round)
         {
-            return round.Bid(gameState, ActingPlayer, Target, Bid);
+            return PrivateAuctionRound.MakeBid(gameState, round, gameState.GetPlayerState(ActingPlayer), Selection, Bid);
         }
-    }
-
-    //public class PlayerPrivateBidChoice
-    //{
-    //    public Player Player { get; }
-    //    public ImmutableList<PrivateCompany> AvailablePrivates { get; }       
-    //}
+    }   
 }

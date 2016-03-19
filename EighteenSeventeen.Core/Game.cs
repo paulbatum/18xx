@@ -59,8 +59,8 @@ namespace EighteenSeventeen.Core
             var playerStates = Players
                 .Select(x => new PlayerState(x, startingCash))
                 .ToImmutableList();
-
-            return new GameState(this, PrivateAuctionRound.StartOfAuctionRound(this), Players.First(), playerStates, ImmutableList<CompanyState>.Empty);
+            
+            return new GameState(this, PrivateAuctionRound.StartOfRound(Players), Players.First(), playerStates, ImmutableList<CompanyState>.Empty);
         }
         
     }

@@ -37,6 +37,7 @@
     <Compile Include="DataTypes\Auction.cs" />
     <Compile Include="Choice.cs" />
     <Compile Include="DataTypes\Company.cs" />
+    <Compile Include="ExtensionUtilities.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="DataTypes\GameState.cs" />
     <Compile Include="GameAction.cs" />

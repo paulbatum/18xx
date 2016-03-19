@@ -27,7 +27,7 @@ namespace EighteenSeventeen.Core.Actions
 
         public GameState Apply(GameState gameState, PrivateAuctionRound round)
         {
-            return round.Pass(gameState, ActingPlayer);
+            return PrivateAuctionRound.Pass(gameState, round, ActingPlayer);
         }                
     }
 }
