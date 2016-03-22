@@ -428,7 +428,26 @@ namespace EighteenSeventeen.Test
             // All privates are gone. We enter the stock round
             GameAssert.CurrentRoundIs(state, "SR1");
             GameAssert.PlayerHasPriority(state, Player4);
-            GameAssert.ActivePlayerIs(state, Player4);  
+            GameAssert.ActivePlayerIs(state, Player4);
+
+            GameAssert.PlayerHasMoney(state, Player1, 315 - 40 - 50);
+            GameAssert.PlayerHasPrivate(state, Player1, PrivateCompanies.PittsburghSteelMill);
+            GameAssert.PlayerHasPrivate(state, Player1, PrivateCompanies.CoalMine);
+
+            GameAssert.PlayerHasMoney(state, Player2, 315 - 70 - 70 - 55);
+            GameAssert.PlayerHasPrivate(state, Player2, PrivateCompanies.MailContract);
+            GameAssert.PlayerHasPrivate(state, Player2, PrivateCompanies.MajorCoalMine);
+            GameAssert.PlayerHasPrivate(state, Player2, PrivateCompanies.UnionBridge);
+
+            GameAssert.PlayerHasMoney(state, Player3, 315 - 45 - 70 - 25);
+            GameAssert.PlayerHasPrivate(state, Player3, PrivateCompanies.MinorMailContract);
+            GameAssert.PlayerHasPrivate(state, Player3, PrivateCompanies.TrainStation);
+            GameAssert.PlayerHasPrivate(state, Player3, PrivateCompanies.OhioBridge);
+
+            GameAssert.PlayerHasMoney(state, Player4, 315 - 25 - 95 - 30);
+            GameAssert.PlayerHasPrivate(state, Player4, PrivateCompanies.MinorCoalMine);
+            GameAssert.PlayerHasPrivate(state, Player4, PrivateCompanies.MajorMailContract);
+            GameAssert.PlayerHasPrivate(state, Player4, PrivateCompanies.MountainEngineers);
         }
     }
 }

@@ -25,5 +25,15 @@ namespace EighteenSeventeen.Test
         {
             Assert.Equal(player, gameState.PlayerWithPriority);
         }
+
+        public static void PlayerHasMoney(GameState state, Player player, int money)
+        {
+            Assert.Equal(money, state.GetPlayerState(player).Money);
+        }
+
+        public static void PlayerHasPrivate(GameState state, Player player, PrivateCompany company)
+        {
+            Assert.Contains(company, state.GetPlayerState(player).PrivateCompanies);
+        }
     }
 }
