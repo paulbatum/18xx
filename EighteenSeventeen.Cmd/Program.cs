@@ -17,11 +17,11 @@ namespace EighteenSeventeen.Cmd
 
         static void Main(string[] args)
         {
-            Game = new Game("Paul", "Stephen", "Jacky", "Chris");
 
             try
             {
-                GameLoop();
+                InitializeGame();
+                RunGameLoop();
             }
             catch(Exception e)
             {
@@ -39,7 +39,30 @@ namespace EighteenSeventeen.Cmd
             }
         }
 
-        private static void GameLoop()
+        private static void InitializeGame()
+        {            
+            Console.WriteLine("Welcome to 1817, Paul's shitty edition.");
+            Console.WriteLine("Hit enter to use the default player setup, or enter player names line by line and enter a blank name when done.");
+
+            var names = new List<string>();
+            var input = Console.ReadLine();
+            if (string.IsNullOrWhiteSpace(input))
+            {
+                names.AddRange(new[] { "Paul", "Stephen", "Jacky", "Chris", "Jonathan" });
+            }
+            else
+            {
+                while (string.IsNullOrWhiteSpace(input) == false)
+                {
+                    names.Add(input);
+                    input = Console.ReadLine();
+                }
+            }
+
+            Game = new Game(names.ToArray());
+        }
+
+        private static void RunGameLoop()
         {
             while (true)
             {
@@ -144,7 +167,8 @@ namespace EighteenSeventeen.Cmd
 
                 var playerState = state.GetPlayerState(p);
                 var privates = string.Join(", ", playerState.PrivateCompanies.Select(x => x.Name));
-                Console.WriteLine($"{p.Name}\t- Cash: {playerState.Money}\t Privates: {privates} ");
+                var biddingPower = playerState.PrivateCompanies.Sum(x => x.Value) + playerState.Money;
+                Console.WriteLine($"{p.Name.PadRight(10, ' ')} Cash: {playerState.Money}\t Bidding Power: {biddingPower}\t Privates: {privates} ");
 
                 Console.ResetColor();
             }
