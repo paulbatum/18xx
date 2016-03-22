@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EighteenSeventeen.Core", "E
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EighteenSeventeen.Test", "EighteenSeventeen.Test\EighteenSeventeen.Test.csproj", "{80000CCC-BD38-4BAF-B255-4964C097EBEA}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EighteenSeventeen.Cmd", "EighteenSeventeen.Cmd\EighteenSeventeen.Cmd.csproj", "{19836E20-93BE-4EA5-9C6C-4F88B285FB1B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{80000CCC-BD38-4BAF-B255-4964C097EBEA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{80000CCC-BD38-4BAF-B255-4964C097EBEA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{80000CCC-BD38-4BAF-B255-4964C097EBEA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{19836E20-93BE-4EA5-9C6C-4F88B285FB1B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{19836E20-93BE-4EA5-9C6C-4F88B285FB1B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{19836E20-93BE-4EA5-9C6C-4F88B285FB1B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{19836E20-93BE-4EA5-9C6C-4F88B285FB1B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
