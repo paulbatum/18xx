@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace EighteenSeventeen.Core.DataTypes
 {
     // I'm going to regret this
-    public abstract class Auction<T>
+    public class Auction<T>
     {
         public T Selection { get; }        
         public Player HighBidder { get; }
@@ -27,5 +27,8 @@ namespace EighteenSeventeen.Core.DataTypes
         public Player GetPlayerAfter(Player player) => Participants.GetPlayerAfter(player);
         public Player GetNextPlayer() => GetPlayerAfter(HighBidder);
         public bool IsComplete => Participants.Count == 1;
+
+        //public Auction<T> MakeBid(T selection, Player player, int bid) => new Auction<T>(selection, player, bid, Participants);
+        //public Auction<T> Pass(Player player) => new Auction<T>(Selection, HighBidder, HighBid, Participants.Remove(player));
     }
 }

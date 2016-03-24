@@ -18,11 +18,13 @@ namespace EighteenSeventeen.Core
 
     public abstract class PlayerRound : Round
     {
+        public ImmutableList<Player> Players { get; }
         public Player ActivePlayer { get; }
         public Player LastToAct { get; }
 
-        public PlayerRound(Player activePlayer, Player lastToAct)
+        public PlayerRound(ImmutableList<Player> players, Player activePlayer, Player lastToAct)
         {
+            Players = players;
             ActivePlayer = activePlayer;
             LastToAct = lastToAct;
         }
@@ -52,21 +54,7 @@ namespace EighteenSeventeen.Core
 
     
 
-    public class StockRound : PlayerRound
-    {
-        public int RoundNumber { get; }
-        public override string Description => $"SR{RoundNumber}";        
 
-        public StockRound(int roundNumber, Player priority) : base(priority, null)
-        {
-            RoundNumber = roundNumber;
-        }
-
-        public override IEnumerable<IChoice> GetChoices(GameState gameState)
-        {
-            throw new NotImplementedException();
-        }
-    }
 
     public class OperatingRound : CompanyRound
     {

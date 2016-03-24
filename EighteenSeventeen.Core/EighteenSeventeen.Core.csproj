@@ -34,9 +34,11 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Actions\PlayerIPOBidAction.cs" />
     <Compile Include="DataTypes\Auction.cs" />
     <Compile Include="Choice.cs" />
     <Compile Include="DataTypes\Company.cs" />
+    <Compile Include="DataTypes\Location.cs" />
     <Compile Include="ExtensionUtilities.cs" />
     <Compile Include="Game.cs" />
     <Compile Include="DataTypes\GameState.cs" />
@@ -50,6 +52,7 @@
     <Compile Include="Round.cs" />
     <Compile Include="Rounds\PrivateAuctionRound.cs" />
     <Compile Include="DataTypes\Train.cs" />
+    <Compile Include="Rounds\StockRound.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="System.Collections.Immutable, Version=1.1.37.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">

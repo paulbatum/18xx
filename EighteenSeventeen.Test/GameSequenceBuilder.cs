@@ -33,6 +33,12 @@ namespace EighteenSeventeen.Test
             return LastAction;
         }
 
+
+        public void PlayerStartsAnIPO(Player player, Location location, int bid)
+        {
+            LastAction = new PlayerIPOBidAction(LastAction, player, location, bid);            
+        }
+
         public GameState GetCurrentState()
         {
             var validator = new GameActionValidator();

@@ -63,8 +63,11 @@ namespace EighteenSeventeen.Core
             // Visitor is for astronauts.
             if (round is PrivateAuctionRound)
                 return TryApply<PrivateAuctionRound>(gameState, validator);
+            else if (round is StockRound)
+                return TryApply<StockRound>(gameState, validator);
             else if (round is OperatingRound)
                 return TryApply<OperatingRound>(gameState, validator);
+
             else
                 throw new Exception($"Current round of type '{round.GetType().Name}' is not recognized. You probably forgot to update the mess of code above.");
         }        

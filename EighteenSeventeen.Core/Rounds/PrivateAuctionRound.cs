@@ -14,13 +14,11 @@ namespace EighteenSeventeen.Core.Rounds
         public int SeedMoney { get; }
         public override string Description { get; } = "PR";
         public ImmutableList<PrivateCompany> Privates { get; }
-        public ImmutableList<Player> Players { get; }
         public PrivateCompanyAuction CurrentAuction { get; }
 
         public PrivateAuctionRound(ImmutableList<Player> players, ImmutableList<PrivateCompany> privates, PrivateCompanyAuction auction, Player activePlayer, Player lastToAct, int seedMoney)
-            : base(activePlayer, lastToAct)
-        {
-            Players = players;
+            : base(players, activePlayer, lastToAct)
+        {            
             Privates = privates;
             CurrentAuction = auction;
             SeedMoney = seedMoney;
@@ -97,7 +95,7 @@ namespace EighteenSeventeen.Core.Rounds
             {
                 // Exit the auction round early as everyone passed
                 var priorityDeal = round.Players.GetPlayerAfter(round.LastToAct);
-                var newRound = new StockRound(1, priorityDeal);
+                var newRound = new StockRound(round.Players, 1, priorityDeal);
                 return new GameState(gameState.Game, newRound, priorityDeal, gameState.PlayerStates, gameState.CompanyStates);
             }
             else
@@ -124,7 +122,7 @@ namespace EighteenSeventeen.Core.Rounds
             Round newRound;            
             if (remainingPrivates.IsEmpty)
             {
-                newRound = new StockRound(1, nextPlayer);
+                newRound = new StockRound(round.Players, 1, nextPlayer);
                 return new GameState(gameState.Game, newRound, nextPlayer, newPlayerStates, gameState.CompanyStates);
             }
             else
