@@ -28,7 +28,7 @@ namespace EighteenSeventeen.Core.DataTypes
         public Player GetNextPlayer() => GetPlayerAfter(HighBidder);
         public bool IsComplete => Participants.Count == 1;
 
-        //public Auction<T> MakeBid(T selection, Player player, int bid) => new Auction<T>(selection, player, bid, Participants);
-        //public Auction<T> Pass(Player player) => new Auction<T>(Selection, HighBidder, HighBid, Participants.Remove(player));
+        public Auction<T> MakeBid(T selection, Player player, int bid) => new Auction<T>(selection, player, bid, Participants);
+        public Auction<T> Pass(Player player) => new Auction<T>(Selection, HighBidder, HighBid, Participants.Remove(player));
     }
 }

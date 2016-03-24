@@ -14,9 +14,9 @@ namespace EighteenSeventeen.Core.Rounds
         public int SeedMoney { get; }
         public override string Description { get; } = "PR";
         public ImmutableList<PrivateCompany> Privates { get; }
-        public PrivateCompanyAuction CurrentAuction { get; }
+        public Auction<PrivateCompany> CurrentAuction { get; }
 
-        public PrivateAuctionRound(ImmutableList<Player> players, ImmutableList<PrivateCompany> privates, PrivateCompanyAuction auction, Player activePlayer, Player lastToAct, int seedMoney)
+        public PrivateAuctionRound(ImmutableList<Player> players, ImmutableList<PrivateCompany> privates, Auction<PrivateCompany> auction, Player activePlayer, Player lastToAct, int seedMoney)
             : base(players, activePlayer, lastToAct)
         {            
             Privates = privates;
@@ -27,12 +27,12 @@ namespace EighteenSeventeen.Core.Rounds
         public static PrivateAuctionRound StartOfRound(ImmutableList<Player> players) => 
             new PrivateAuctionRound(players, PrivateCompanies.All, null, players.First(), players.Last(), 200);
         
-        private PrivateAuctionRound Update(ImmutableList<PrivateCompany> privates = null, PrivateCompanyAuction auction = null, Player activePlayer = null, Player lastToAct = null, int? seedMoney = null) =>
+        private PrivateAuctionRound Update(ImmutableList<PrivateCompany> privates = null, Auction<PrivateCompany> auction = null, Player activePlayer = null, Player lastToAct = null, int? seedMoney = null) =>
             new PrivateAuctionRound(Players, privates ?? Privates, auction ?? CurrentAuction, activePlayer ?? ActivePlayer, lastToAct ?? LastToAct, seedMoney ?? SeedMoney);        
 
         public PrivateAuctionRound StartAuction(Player biddingPlayer, PrivateCompany selection, int bid)
         {
-            var auction = new PrivateCompanyAuction(selection, biddingPlayer, bid, Players);
+            var auction = new Auction<PrivateCompany>(selection, biddingPlayer, bid, Players);
             return Update(auction: auction, activePlayer: Players.GetPlayerAfter(biddingPlayer), lastToAct: biddingPlayer);            
         }
 
@@ -164,21 +164,6 @@ namespace EighteenSeventeen.Core.Rounds
                 return null;
 
             return new BidChoice<PrivateCompany>(selection, min, max);
-        }
-
-        public class PrivateCompanyAuction : Auction<PrivateCompany>
-        {
-            public PrivateCompanyAuction(PrivateCompany selection, Player highBidder, int currentBid, ImmutableList<Player> participants)
-                : base (selection, highBidder, currentBid, participants)
-            {
-
-            }
-
-            public PrivateCompanyAuction MakeBid(PrivateCompany selection, Player player, int bid) =>
-                new PrivateCompanyAuction(selection, player, bid, Participants);
-
-            public PrivateCompanyAuction Pass(Player player) =>
-                new PrivateCompanyAuction(Selection, HighBidder, HighBid, Participants.Remove(player));            
         }
     }
 }
