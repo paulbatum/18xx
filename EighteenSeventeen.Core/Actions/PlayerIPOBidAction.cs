@@ -23,12 +23,12 @@ namespace EighteenSeventeen.Core.Actions
 
         public void Validate(GameState gameState, GameActionValidator validator, StockRound round)
         {
-            throw new NotImplementedException();
+            StockRound.ValidateIPOBid(gameState, validator, round, gameState.GetPlayerState(ActingPlayer), Selection, Bid);
         }
 
         public GameState Apply(GameState gameState, StockRound round)
         {
-            throw new NotImplementedException();
+            return StockRound.MakeIPOBid(gameState, round, gameState.GetPlayerState(ActingPlayer), Selection, Bid);
         }
     }
 }

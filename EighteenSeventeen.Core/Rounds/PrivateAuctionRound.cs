@@ -16,7 +16,7 @@ namespace EighteenSeventeen.Core.Rounds
         public ImmutableList<PrivateCompany> Privates { get; }
         public Auction<PrivateCompany> CurrentAuction { get; }
 
-        public PrivateAuctionRound(ImmutableList<Player> players, ImmutableList<PrivateCompany> privates, Auction<PrivateCompany> auction, Player activePlayer, Player lastToAct, int seedMoney)
+        private PrivateAuctionRound(ImmutableList<Player> players, ImmutableList<PrivateCompany> privates, Auction<PrivateCompany> auction, Player activePlayer, Player lastToAct, int seedMoney)
             : base(players, activePlayer, lastToAct)
         {            
             Privates = privates;
@@ -30,7 +30,7 @@ namespace EighteenSeventeen.Core.Rounds
         private PrivateAuctionRound Update(ImmutableList<PrivateCompany> privates = null, Auction<PrivateCompany> auction = null, Player activePlayer = null, Player lastToAct = null, int? seedMoney = null) =>
             new PrivateAuctionRound(Players, privates ?? Privates, auction ?? CurrentAuction, activePlayer ?? ActivePlayer, lastToAct ?? LastToAct, seedMoney ?? SeedMoney);        
 
-        public PrivateAuctionRound StartAuction(Player biddingPlayer, PrivateCompany selection, int bid)
+        private PrivateAuctionRound StartAuction(Player biddingPlayer, PrivateCompany selection, int bid)
         {
             var auction = new Auction<PrivateCompany>(selection, biddingPlayer, bid, Players);
             return Update(auction: auction, activePlayer: Players.GetPlayerAfter(biddingPlayer), lastToAct: biddingPlayer);            
@@ -95,13 +95,13 @@ namespace EighteenSeventeen.Core.Rounds
             {
                 // Exit the auction round early as everyone passed
                 var priorityDeal = round.Players.GetPlayerAfter(round.LastToAct);
-                var newRound = new StockRound(round.Players, 1, priorityDeal);
+                var newRound = StockRound.StartOfRound(round.Players, 1, priorityDeal);
                 return new GameState(gameState.Game, newRound, priorityDeal, gameState.PlayerStates, gameState.CompanyStates);
             }
             else
             {
                 // player elects not to put anything up for auction
-                var newRound = round.Update( activePlayer: gameState.Game.GetPlayerAfter(passingPlayer));
+                var newRound = round.Update( activePlayer: gameState.Game.Players.GetPlayerAfter(passingPlayer));
                 return gameState.WithRound(newRound);
             }            
         }
@@ -122,7 +122,7 @@ namespace EighteenSeventeen.Core.Rounds
             Round newRound;            
             if (remainingPrivates.IsEmpty)
             {
-                newRound = new StockRound(round.Players, 1, nextPlayer);
+                newRound = StockRound.StartOfRound(round.Players, 1, nextPlayer);
                 return new GameState(gameState.Game, newRound, nextPlayer, newPlayerStates, gameState.CompanyStates);
             }
             else

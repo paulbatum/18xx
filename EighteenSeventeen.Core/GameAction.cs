@@ -67,7 +67,6 @@ namespace EighteenSeventeen.Core
                 return TryApply<StockRound>(gameState, validator);
             else if (round is OperatingRound)
                 return TryApply<OperatingRound>(gameState, validator);
-
             else
                 throw new Exception($"Current round of type '{round.GetType().Name}' is not recognized. You probably forgot to update the mess of code above.");
         }        

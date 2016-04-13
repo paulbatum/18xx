@@ -20,8 +20,6 @@ namespace EighteenSeventeen.Core
                 .ToImmutableList();            
         }
         
-        public Player GetPlayerAfter(Player player) => Players[(Players.IndexOf(player) + 1) % Players.Count];        
-
         public GameState GetLastValidState(IGameAction finalAction, GameActionValidator validator)
         {
             GameState state = GetInitialState();

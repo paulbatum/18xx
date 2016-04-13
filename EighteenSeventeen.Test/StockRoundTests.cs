@@ -41,7 +41,6 @@ namespace EighteenSeventeen.Test
 
             var state = Builder.GetCurrentState();
             var stockRound = state.Round as StockRound;
-
             Assert.NotNull(stockRound);
 
             var auction = stockRound.CurrentAuction;
